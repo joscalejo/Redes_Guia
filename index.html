@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía Exhaustiva - Proyecto Final MIEMPRESA Cisco</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* CSS Variables */
+        :root {
+            --bg-dark: #0a0f18;
+            --bg-card: #141c2a;
+            --bg-sidebar: #0b1120;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-cyan: #06b6d4;
+            --accent-cyan-glow: rgba(6, 182, 212, 0.4);
+            --accent-orange: #f97316;
+            --accent-orange-glow: rgba(249, 115, 22, 0.4);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --font-main: 'Outfit', sans-serif;
+            --font-code: 'JetBrains Mono', monospace;
+        }
+
+        /* Reset & Base */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: 300px;
+            background-color: var(--bg-sidebar);
+            border-right: 1px solid var(--border-color);
+            position: fixed;
+            top: 0; left: 0;
+            height: 100vh;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            z-index: 50;
+            transition: transform 0.3s ease;
+        }
+        .sidebar::-webkit-scrollbar { width: 6px; }
+        .sidebar::-webkit-scrollbar-track { background: var(--bg-sidebar); }
+        .sidebar::-webkit-scrollbar-thumb { background: var(--bg-card); border-radius: 10px; }
+
+        .sidebar-header {
+            padding: 2rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            text-align: center;
+        }
+        .sidebar-header .logo-icon {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+        .sidebar-header h1 {
+            font-size: 1.2rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .sidebar-header span.highlight { color: var(--accent-cyan); }
+
+        .sidebar-nav {
+            padding: 1rem 0;
+            flex-grow: 1;
+            list-style: none;
+        }
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-left: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .nav-link i {
+            width: 24px;
+            font-size: 1.1rem;
+            margin-right: 10px;
+            transition: color 0.3s ease;
+            text-align: center;
+        }
+        .nav-link:hover, .nav-link.active {
+            background-color: rgba(6, 182, 212, 0.05);
+            color: var(--text-primary);
+            border-left-color: var(--accent-cyan);
+        }
+        .nav-link.active i { color: var(--accent-cyan); }
+
+        /* Main Content Styling */
+        .main-content {
+            flex-grow: 1;
+            margin-left: 300px;
+            padding: 4rem;
+            max-width: 1900px;
+        }
+
+        /* Mobile Header */
+        .mobile-header {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            background-color: var(--bg-sidebar);
+            padding: 1rem 1.5rem;
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .mobile-header h2 { font-size: 1.2rem; font-weight: 800; }
+        .menu-toggle {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Global Alert */
+        .global-alert {
+            background: linear-gradient(145deg, rgba(249, 115, 22, 0.1), rgba(30, 41, 59, 0.8));
+            border: 1px solid var(--accent-orange);
+            border-radius: 16px;
+            padding: 2rem;
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 4rem;
+            box-shadow: 0 0 20px var(--accent-orange-glow);
+            position: relative;
+            overflow: hidden;
+            align-items: center;
+        }
+        .global-alert::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            box-shadow: inset 0 0 10px rgba(249, 115, 22, 0.2);
+            pointer-events: none;
+        }
+        .global-alert-icon {
+            font-size: 3rem;
+            color: var(--accent-orange);
+            flex-shrink: 0;
+            animation: pulse-icon 2s infinite;
+        }
+        @keyframes pulse-icon {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.8; }
+        }
+        .global-alert-content h2 {
+            color: var(--accent-orange);
+            font-size: 1.4rem;
+            margin-bottom: 0.5rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .global-alert-content p { font-size: 1.05rem; margin: 0; }
+        .global-alert-content strong {
+            color: #fff;
+            background-color: rgba(249, 115, 22, 0.2);
+            padding: 0.1rem 0.4rem;
+            border-radius: 4px;
+        }
+
+        /* Module Structure */
+        .module-section {
+            margin-bottom: 5rem;
+            scroll-margin-top: 2rem;
+            animation: fadeIn 0.8s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .module-header {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+        .module-number {
+            font-size: 4rem;
+            font-weight: 800;
+            line-height: 1;
+            color: transparent;
+            -webkit-text-stroke: 2px rgba(6, 182, 212, 0.3);
+        }
+        .module-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            position: relative;
+        }
+        .module-title::after {
+            content: '';
+            position: absolute;
+            left: 0; bottom: -8px;
+            width: 60px; height: 4px;
+            background-color: var(--accent-cyan);
+            border-radius: 2px;
+            box-shadow: 0 0 10px var(--accent-cyan-glow);
+        }
+
+        /* Accordion Cards */
+        .card {
+            background-color: var(--bg-card);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .accordion-item { border-bottom: 1px solid var(--border-color); }
+        .accordion-item:last-child { border-bottom: none; }
+        
+        .accordion-header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 2rem;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 1.15rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .accordion-header:hover { background-color: rgba(255, 255, 255, 0.03); }
+        .accordion-header.active {
+            color: var(--accent-cyan);
+            background-color: rgba(6, 182, 212, 0.05);
+        }
+        .header-left { display: flex; align-items: center; gap: 1rem; }
+        .header-left i { font-size: 1.2rem; color: var(--text-secondary); transition: color 0.3s; }
+        .accordion-header.active .header-left i { color: var(--accent-cyan); }
+        .accordion-icon { transition: transform 0.3s ease; color: var(--text-secondary); }
+        .accordion-header.active .accordion-icon { transform: rotate(180deg); color: var(--accent-cyan); }
+        
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out;
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+        .accordion-inner { padding: 1.5rem 2rem 2rem; }
+
+        /* Theory boxes */
+        .theory-box {
+            background-color: rgba(6, 182, 212, 0.05);
+            border-left: 4px solid var(--accent-cyan);
+            padding: 1.5rem;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 1.5rem;
+        }
+        .theory-box h4 { color: var(--accent-cyan); margin-bottom: 0.5rem; font-size: 1.1rem; }
+        .theory-box p { color: var(--text-secondary); font-size: 1rem; margin-bottom: 0.5rem;}
+        .theory-box p:last-child { margin-bottom: 0;}
+        .theory-box strong { color: var(--text-primary); }
+
+        .theory-text { font-size: 1.05rem; color: var(--text-secondary); margin-bottom: 1rem;}
+        .theory-text strong { color: var(--text-primary); }
+        
+        /* Tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            background-color: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .data-table th, .data-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .data-table th {
+            background-color: rgba(6, 182, 212, 0.1);
+            color: var(--accent-cyan);
+            font-weight: 600;
+        }
+        .data-table tr:last-child td { border-bottom: none; }
+
+        /* Code Blocks */
+        .code-block {
+            background-color: #0b1120;
+            border-radius: 8px;
+            padding: 2.2rem 1.5rem 1.5rem;
+            font-family: var(--font-code);
+            font-size: 0.95rem;
+            color: #e2e8f0;
+            margin-top: 1rem;
+            border: 1px solid rgba(6, 182, 212, 0.2);
+            position: relative;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+            overflow-x: auto;
+        }
+        .code-block::before {
+            content: 'CLI / Packet Tracer';
+            position: absolute;
+            top: 0; right: 1.5rem;
+            background: var(--accent-cyan);
+            color: var(--bg-dark);
+            font-size: 0.75rem;
+            padding: 0.3rem 0.8rem;
+            border-bottom-left-radius: 6px;
+            border-bottom-right-radius: 6px;
+            font-family: var(--font-main);
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+        .code-line {
+            display: block;
+            margin-bottom: 0.4rem;
+        }
+        .cli-prompt { color: #10b981; font-weight: bold; margin-right: 0.5rem; }
+        .highlight-cyan { color: var(--accent-cyan); font-weight: bold; }
+        .highlight-orange { color: var(--accent-orange); font-weight: bold; }
+        .comment { color: #64748b; font-style: italic; display: block; margin-top: 0.8rem; margin-bottom: 0.3rem; }
+        .comment:first-child { margin-top: 0; }
+
+        /* Alerts */
+        .alert-box {
+            margin-top: 1rem;
+            padding: 1.5rem;
+            border-radius: 8px;
+            display: flex;
+            gap: 1.25rem;
+            align-items: flex-start;
+            background: rgba(249, 115, 22, 0.05);
+            border-left: 4px solid var(--accent-orange);
+        }
+        .alert-box.info {
+            background: rgba(6, 182, 212, 0.05);
+            border-left-color: var(--accent-cyan);
+        }
+        .alert-box i {
+            font-size: 1.5rem;
+            color: var(--accent-orange);
+            margin-top: 0.2rem;
+        }
+        .alert-box.info i { color: var(--accent-cyan); }
+        .alert-box-content strong {
+            display: block;
+            margin-bottom: 0.4rem;
+            color: #fff;
+            font-size: 1.1rem;
+        }
+        .alert-box-content p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin: 0;
+        }
+
+        /* Responsive */
+        .overlay {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); z-index: 45; backdrop-filter: blur(2px);
+        }
+        @media (max-width: 992px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.show { transform: translateX(0); }
+            .overlay.show { display: block; }
+            .main-content { margin-left: 0; padding: 2rem 1.5rem; }
+            .mobile-header { display: flex; }
+            .global-alert { flex-direction: column; text-align: center; }
+            .module-number { font-size: 3rem; }
+            .module-title { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <i class="fa-solid fa-network-wired logo-icon"></i>
+            <h1>Roadmap TF<br><span class="highlight">Redes Cisco</span></h1>
+        </div>
+        <ul class="sidebar-nav">
+            <li><a href="#modulo-1" class="nav-link active"><i class="fa-solid fa-sitemap"></i> 1. IP y VLSM</a></li>
+            <li><a href="#modulo-2" class="nav-link"><i class="fa-solid fa-layer-group"></i> 2. VLANs y Troncales</a></li>
+            <li><a href="#modulo-3" class="nav-link"><i class="fa-solid fa-microchip"></i> 3. Inter-VLAN (Core)</a></li>
+            <li><a href="#modulo-4" class="nav-link"><i class="fa-solid fa-route"></i> 4. WAN y PPP CHAP</a></li>
+            <li><a href="#modulo-5" class="nav-link"><i class="fa-solid fa-network-wired"></i> 5. RIPv2 y Estático</a></li>
+            <li><a href="#modulo-6" class="nav-link"><i class="fa-solid fa-server"></i> 6. Servicios de Red</a></li>
+            <li><a href="#modulo-7" class="nav-link"><i class="fa-solid fa-shield-halved"></i> 7. ACLs y SSH</a></li>
+            <li><a href="#modulo-8" class="nav-link"><i class="fa-solid fa-cloud"></i> 8. WLAN y Cloud</a></li>
+        </ul>
+    </nav>
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Mobile Header -->
+    <header class="mobile-header">
+        <h2>Roadmap Cisco</h2>
+        <button class="menu-toggle" id="menu-toggle"><i class="fa-solid fa-bars"></i></button>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+        <!-- Global Alert -->
+        <div class="global-alert">
+            <i class="fa-solid fa-triangle-exclamation global-alert-icon"></i>
+            <div class="global-alert-content">
+                <h2>"La Regla de la X" - ¡Importante!</h2>
+                <p>La dirección de red base de la multinacional es <strong>10.19X.0.0/16</strong>. La "X" debe ser reemplazada obligatoriamente por el <strong>número de tu grupo</strong>. ¡Si olvidas esto, habrá duplicidad de IPs y tu red colapsará al integrarse al final del semestre!</p>
+            </div>
+        </div>
+
+        <!-- MÓDULO 1 -->
+        <section id="modulo-1" class="module-section">
+            <div class="module-header">
+                <span class="module-number">01</span>
+                <h2 class="module-title">Diseño Lógico IP y VLSM</h2>
+            </div>
+            <div class="card">
+                <div class="accordion-item">
+                    <button class="accordion-header active">
+                        <div class="header-left"><i class="fa-solid fa-calculator"></i><span>Teoría VLSM y Cálculo Matemático (25%)</span></div>
+                        <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <div class="theory-box">
+                                <h4>Fundamento Teórico</h4>
+                                <p>Las redes "Classful" usan máscaras fijas, desperdiciando miles de IPs. <strong>VLSM (Variable Length Subnet Mask)</strong> permite "hacer subredes de una subred", asignando máscaras variables según la necesidad exacta de cada departamento, maximizando la eficiencia.</p>
+                            </div>
+                            <p class="theory-text">Según la rúbrica, no puedes dimensionar la red con los hosts actuales. <strong>Debes aplicar un aumento proporcional del 25% a cada VLAN.</strong></p>
+                            <div class="alert-box info">
+                                <i class="fa-solid fa-square-root-variable"></i>
+                                <div class="alert-box-content">
+                                    <strong>Ejemplo Matemático Exacto (Sede Lima):</strong>
+                                    <p>• <strong>Administración:</strong> Tienes 100 hosts actuales. Le calculas el aumento del 25% (`100 * 1.25`) y tienes que dimensionar para <strong>125 hosts</strong>. Necesitarás una subred /24 (254 útiles).</p>
+                                    <p>• <strong>Logística:</strong> Tienes 25 hosts actuales. Con el aumento serían `31.25`. Como no puede ser decimal, <strong>siempre se redondea hacia arriba</strong>, por lo que te quedarías con <strong>32 hosts</strong>. Necesitarás una subred /26 (62 útiles).</p>
+                                    <p><em>* Aplica este mismo cálculo y redondeo hacia arriba para absolutamente todos los demás departamentos.</em></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <button class="accordion-header">
+                        <div class="header-left"><i class="fa-solid fa-circle-exclamation"></i><span>Regla de Oro para WAN</span></div>
+                        <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <div class="alert-box">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                                <div class="alert-box-content">
+                                    <strong>No desperdicies IPs en Enlaces Seriales</strong>
+                                    <p>Para los enlaces WAN (Punto a Punto entre sedes), debes usar SIEMPRE subredes <strong>/30</strong>. Una máscara /30 solo provee 2 direcciones útiles, exactamente las que necesitas para conectar dos routers. Si usas /24 o FLSM, te descontarán puntos.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MÓDULO 2 -->
+        <section id="modulo-2" class="module-section">
+            <div class="module-header">
+                <span class="module-number">02</span>
+                <h2 class="module-title">Capa 2 - VLANs y Troncales (Paso a Paso)</h2>
+            </div>
+            <div class="card">
+                <div class="accordion-item">
+                    <button class="accordion-header active">
+                        <div class="header-left"><i class="fa-solid fa-list-check"></i><span>1. Crear la Tabla de VLANs en todos los Switches</span></div>
+                        <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <p class="theory-text">Debes crear esta misma base de datos de VLANs en <strong>todos los switches de acceso y distribución</strong> para que el tráfico esté correctamente etiquetado.</p>
+                            <div class="code-block">
+                                <span class="comment">! Entrar al modo de configuración global y crear TODAS las VLANs del proyecto:</span>
+                                <span class="code-line"><span class="cli-prompt">Switch></span> enable</span>
+                                <span class="code-line"><span class="cli-prompt">Switch#</span> configure terminal</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config)#</span> vlan 10</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> name AdministracionVLAN10</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> vlan 20</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> name LogisticaVLAN20</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> vlan 30</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> name VentasVLAN30</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> vlan 40</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> name FinanzasVLAN40</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> vlan 50</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> name MarketingVLAN50</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> vlan 60</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> name Wifi-ClientesVLAN60</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> vlan 70</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> name Wifi-EjecutivosVLAN70</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> vlan 80</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> name ServidoresVLAN80</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> vlan 90</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> name Nativa-GestionVLAN90</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> exit</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <button class="accordion-header">
+                        <div class="header-left"><i class="fa-solid fa-terminal"></i><span>2. Asignar Puertos de Acceso y Troncales</span></div>
+                        <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <div class="code-block">
+                                <span class="comment">! ASIGNAR PUERTO DE ACCESO (Hacia una PC o Servidor)</span>
+                                <span class="comment">! Ejemplo: Asignar el puerto FastEthernet 0/2 a la VLAN 30 de Ventas</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config)#</span> interface fastEthernet 0/2</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-if)#</span> switchport mode access</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-if)#</span> switchport access vlan 30</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-if)#</span> exit</span>
+                                
+                                <span class="comment">! CONFIGURAR ENLACES TRONCALES (Conexiones entre Switches)</span>
+                                <span class="comment">! Ejemplo: El puerto Gigabit 0/1 conecta al Switch Core</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config)#</span> interface gigabitEthernet 0/1</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-if)#</span> switchport mode trunk</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-if)#</span> switchport trunk allowed vlan all</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-if)#</span> exit</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MÓDULO 3 -->
+        <section id="modulo-3" class="module-section">
+            <div class="module-header">
+                <span class="module-number">03</span>
+                <h2 class="module-title">El Núcleo - Enrutamiento Inter-VLAN (Switch Multicapa)</h2>
+            </div>
+            <div class="card">
+                <div class="accordion-item">
+                    <button class="accordion-header active">
+                        <div class="header-left"><i class="fa-solid fa-bolt"></i><span>Configuración Exhaustiva del CORE</span></div>
+                        <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <p class="theory-text">El proyecto utiliza un <strong>Switch Multicapa (Ej: Catalyst 3650)</strong>. Este dispositivo de Capa 3 asume el rol de Gateway para todas las VLANs, creando "Interfaces Virtuales (SVI)".</p>
+                            
+                            <div class="alert-box">
+                                <i class="fa-solid fa-bolt"></i>
+                                <div class="alert-box-content">
+                                    <strong>¡COMANDO CRÍTICO!</strong>
+                                    <p>Si omites el comando <span class="highlight-orange">ip routing</span> en modo global, el Switch Multicapa funcionará solo como Capa 2 y NINGÚN ping pasará de una VLAN a otra.</p>
+                                </div>
+                            </div>
+
+                            <div class="code-block">
+                                <span class="comment">! 1. Habilitar enrutamiento (VITAL)</span>
+                                <span class="code-line"><span class="cli-prompt">CORE(config)#</span> ip routing</span>
+                                <br>
+                                <span class="comment">! 2. Asegúrate de crear todas las VLANs en el CORE (mismo bloque del Módulo 2)</span>
+                                <span class="code-line"><span class="cli-prompt">CORE(config)#</span> vlan 10,20,30,40,50,60,70,80,90 <span class="comment">(Atajo en algunos modelos)</span></span>
+                                <br>
+                                <span class="comment">! 3. Crear las SVIs (Ejemplo usando las IPs de Lima del documento)</span>
+                                <span class="code-line"><span class="cli-prompt">CORE(config)#</span> interface vlan 10</span>
+                                <span class="code-line"><span class="cli-prompt">CORE(config-if)#</span> description AdministracionVLAN10</span>
+                                <span class="code-line"><span class="cli-prompt">CORE(config-if)#</span> ip address 10.81.41.1 255.255.255.0</span>
+                                <span class="code-line"><span class="cli-prompt">CORE(config-if)#</span> no shutdown</span>
+                                
+                                <span class="code-line"><span class="cli-prompt">CORE(config)#</span> interface vlan 20</span>
+                                <span class="code-line"><span class="cli-prompt">CORE(config-if)#</span> description LogisticaVLAN20</span>
+                                <span class="code-line"><span class="cli-prompt">CORE(config-if)#</span> ip address 10.81.42.129 255.255.255.192</span>
+                                <span class="code-line"><span class="cli-prompt">CORE(config-if)#</span> no shutdown</span>
+                                
+                                <span class="code-line"><span class="cli-prompt">CORE(config)#</span> interface vlan 30</span>
+                                <span class="code-line"><span class="cli-prompt">CORE(config-if)#</span> description VentasVLAN30</span>
+                                <span class="code-line"><span class="cli-prompt">CORE(config-if)#</span> ip address 10.81.40.1 255.255.255.0</span>
+                                <span class="code-line"><span class="cli-prompt">CORE(config-if)#</span> no shutdown</span>
+                                
+                                <span class="comment">! Y así sucesivamente para VLAN 40, 50, 60, 70, 80 y 90 usando tus IPs calculadas en VLSM.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MÓDULO 4 -->
+        <section id="modulo-4" class="module-section">
+            <div class="module-header">
+                <span class="module-number">04</span>
+                <h2 class="module-title">Enlaces WAN y Autenticación PPP CHAP</h2>
+            </div>
+            <div class="card">
+                <div class="accordion-item">
+                    <button class="accordion-header active">
+                        <div class="header-left"><i class="fa-solid fa-book-open"></i><span>Teoría de Laboratorio: PAP vs CHAP</span></div>
+                        <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <div class="theory-box">
+                                <h4>Fundamento Teórico</h4>
+                                <p>En enlaces seriales WAN, el protocolo por defecto de Cisco es HDLC. Sin embargo, para mayor compatibilidad y seguridad cambiamos el encapsulamiento a <strong>PPP (Point-to-Point Protocol)</strong>.</p>
+                                <p>El laboratorio nos enseña dos métodos de autenticación: <strong>PAP</strong> envía la contraseña en texto plano (inseguro), mientras que <strong>CHAP (Challenge Handshake Authentication Protocol)</strong> usa un desafío encriptado de 3 vías (mucho más seguro). Es por eso que el proyecto exige CHAP.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <button class="accordion-header">
+                        <div class="header-left"><i class="fa-solid fa-shield-halved"></i><span>Comandos de Autenticación Cruzada</span></div>
+                        <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <div class="alert-box info">
+                                <i class="fa-solid fa-circle-info"></i>
+                                <div class="alert-box-content">
+                                    <strong>Regla de Nombres de Usuario</strong>
+                                    <p>Si configuras el ROUTER A que conecta con el ROUTER B, el comando debe ser `username ROUTER_B secret miclave`. La clave (`secret`) debe ser EXACTAMENTE la misma en ambos routers.</p>
+                                </div>
+                            </div>
+                            <div class="code-block">
+                                <span class="comment">! CONFIGURACIÓN EN ROUTER LIMA (Conectando hacia Ica):</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config)#</span> username Router_Ica secret ciscoclass</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config)#</span> interface s0/0/0</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config-if)#</span> ip address 10.81.36.1 255.255.255.252</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config-if)#</span> encapsulation ppp</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config-if)#</span> ppp authentication chap</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config-if)#</span> no shutdown</span>
+                                <br>
+                                <span class="comment">! CONFIGURACIÓN EN ROUTER ICA (Conectando hacia Lima):</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Ica(config)#</span> username Router_Lima secret ciscoclass</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Ica(config)#</span> interface s0/0/0</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Ica(config-if)#</span> ip address 10.81.36.2 255.255.255.252</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Ica(config-if)#</span> encapsulation ppp</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Ica(config-if)#</span> ppp authentication chap</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Ica(config-if)#</span> no shutdown</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MÓDULO 5 -->
+        <section id="modulo-5" class="module-section">
+            <div class="module-header">
+                <span class="module-number">05</span>
+                <h2 class="module-title">Enrutamiento RIPv2 y Rutas Estáticas</h2>
+            </div>
+            <div class="card">
+                <div class="accordion-item">
+                    <button class="accordion-header active">
+                        <div class="header-left"><i class="fa-solid fa-network-wired"></i><span>RIPv2 y Rutas Flotantes (Failover)</span></div>
+                        <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <p class="theory-text"><strong>RIPv2</strong> es un protocolo de vector distancia que compartirá automáticamente las rutas entre nuestras sedes. Las <strong>Rutas Estáticas Flotantes</strong> nos permiten tener un ISP de respaldo que solo se activará si el ISP principal falla (se logra dándole una distancia administrativa mayor a 1).</p>
+                            
+                            <div class="code-block">
+                                <span class="comment">! 1. CONFIGURAR RIPv2 EN TODOS LOS ROUTERS Y CORES:</span>
+                                <span class="code-line"><span class="cli-prompt">Router(config)#</span> router rip</span>
+                                <span class="code-line"><span class="cli-prompt">Router(config-router)#</span> version 2</span>
+                                <span class="comment">! Debes declarar las redes directamente conectadas. Por ejemplo, si el router tiene la 10.81.36.0:</span>
+                                <span class="code-line"><span class="cli-prompt">Router(config-router)#</span> network 10.81.36.0</span>
+                                <span class="code-line"><span class="cli-prompt">Router(config-router)#</span> network 10.81.0.0</span>
+                                <span class="comment">! CRÍTICO: Prevenir que RIP destruya el VLSM sumarizando las redes</span>
+                                <span class="code-line"><span class="cli-prompt">Router(config-router)#</span> no auto-summary</span>
+                                <span class="code-line"><span class="cli-prompt">Router(config-router)#</span> exit</span>
+                                <br>
+                                <span class="comment">! 2. RUTAS ESTÁTICAS AL INTERNET (Solo en el Router Frontera / Borde):</span>
+                                <span class="comment">! Ruta Predeterminada Principal por el ISP 1</span>
+                                <span class="code-line"><span class="cli-prompt">Router(config)#</span> ip route 0.0.0.0 0.0.0.0 209.165.200.226</span>
+                                <span class="comment">! Ruta Flotante de Respaldo por el ISP 2 (Distancia Administrativa 5)</span>
+                                <span class="code-line"><span class="cli-prompt">Router(config)#</span> ip route 0.0.0.0 0.0.0.0 209.165.201.2 5</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MÓDULO 6 -->
+        <section id="modulo-6" class="module-section">
+            <div class="module-header">
+                <span class="module-number">06</span>
+                <h2 class="module-title">Servicios de Red (La Magia de Capa 7)</h2>
+            </div>
+            <div class="card">
+                <div class="accordion-item">
+                    <button class="accordion-header active">
+                        <div class="header-left"><i class="fa-solid fa-book-open"></i><span>Teoría de Laboratorios 11b y 11c</span></div>
+                        <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <div class="theory-box">
+                                <h4>DNS (Domain Name System)</h4>
+                                <p>Las computadoras se comunican usando IPs numéricas, pero los humanos usamos nombres (ej. `www.google.com`). El servidor DNS actúa como una gigantesca guía telefónica que traduce estos nombres a IPs.</p>
+                                
+                                <h4>WEB (HTTP/HTTPS)</h4>
+                                <p>El Servidor WEB procesa aplicaciones del lado del servidor. Generalmente usa el protocolo HTTP (puerto TCP 80) o HTTPS (puerto TCP 443) para enviar el código de la página al navegador del cliente.</p>
+
+                                <h4>CORREO (SMTP, POP3, IMAP)</h4>
+                                <p>Trabaja como una oficina postal. El protocolo <strong>SMTP</strong> (Puerto TCP 25) se encarga de transportar o enviar el mensaje (MTA). El protocolo <strong>POP3</strong> (Puerto TCP 110) se encarga de descargar y recuperar el correo desde el servidor hacia la PC cliente. IMAP es similar pero mantiene la copia sincronizada en el servidor.</p>
+                                
+                                <h4>FTP y TCP</h4>
+                                <p>FTP permite la transferencia de archivos. Utiliza el protocolo <strong>TCP</strong>, el cual orienta la conexión y garantiza la fiabilidad del envío de los paquetes (a diferencia de UDP que es más rápido pero no garantiza la entrega).</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <button class="accordion-header">
+                        <div class="header-left"><i class="fa-solid fa-server"></i><span>Configuración GUI en Packet Tracer</span></div>
+                        <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <p class="theory-text">En Packet Tracer, entra a los Servidores ubicados en la Sede Lima y ve a la pestaña <strong>"Services"</strong>. Así es como configuras cada uno, tal cual lo enseñan en los laboratorios:</p>
+                            <table class="data-table">
+                                <tr><th>Servicio</th><th>Paso a Paso en Packet Tracer GUI</th></tr>
+                                <tr>
+                                    <td><strong>DHCP</strong></td>
+                                    <td>Asegúrate de configurar el "Default Gateway" (IP de la SVI del Core) y el "DNS Server" (IP del servidor DNS central de Lima). Crea un <strong>Pool Name</strong> para cada VLAN (Ej: `Pool-Ventas30`), define la IP de inicio y guarda los cambios con "Add" / "Save". ¡Enciende el servicio (ON)!</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>DNS</strong></td>
+                                    <td>Asegúrate de que esté en ON. En <strong>Name</strong> escribe el dominio (ej. `www.lima.com` o `ftp.huanuco.com`), en <strong>Type</strong> elige `A Record`, y en <strong>Address</strong> pon la IP exacta del servidor respectivo. Presiona "Add".</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>HTTP</strong></td>
+                                    <td>Enciende HTTP y HTTPS. Edita el archivo `index.html` haciendo clic en "Edit" y cambia el código HTML (Ej: `<center>Bienvenido a la Sede Lima</center>`). Guarda para verificar desde las PCs.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>FTP</strong></td>
+                                    <td>Actívalo (ON). Crea el nombre de usuario (ej. `adminLima`), contraseña y marca todas las casillas de permisos: <strong>Read, Write, Delete, Rename, List</strong>. Clic en "Add".</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>EMAIL</strong></td>
+                                    <td>Enciende SMTP y POP3. En <strong>Domain Name</strong> escribe `peru.com` y dale a "Set". Luego, crea los usuarios (ej. <code>usuarioLima1</code> con pass <code>1234</code>) y dale a "+" para añadirlos. Las PCs podrán abrir la app "Email", poner estos datos y enviarse correos.</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MÓDULO 7 -->
+        <section id="modulo-7" class="module-section">
+            <div class="module-header">
+                <span class="module-number">07</span>
+                <h2 class="module-title">Seguridad (Las 5 Políticas ACL y SSH)</h2>
+            </div>
+            <div class="card">
+                <div class="accordion-item">
+                    <button class="accordion-header active">
+                        <div class="header-left"><i class="fa-solid fa-book-open"></i><span>Teoría de Laboratorios (ACLs y Wildcards)</span></div>
+                        <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <div class="theory-box">
+                                <h4>Listas de Control de Acceso (ACL)</h4>
+                                <p>Una ACL actúa como un cortafuegos interno. Filtra el tráfico permitiéndolo (`permit`) o denegándolo (`deny`).</p>
+                                <p>• <strong>ACL Estándar:</strong> Solo filtran en base a la IP de origen (Números del 1 al 99).</p>
+                                <p>• <strong>ACL Extendida:</strong> Filtran en base a origen, destino y protocolo o puerto específico (Números del 100 al 199).</p>
+                                
+                                <h4>La Máscara Wildcard (Comodín)</h4>
+                                <p>Al escribir ACLs no usamos máscaras de subred normales, usamos Wildcards. Si lo traducimos a binario:</p>
+                                <p>• El <strong>0</strong> significa "ME IMPORTA" (Tiene que coincidir el número exacto).</p>
+                                <p>• El <strong>1</strong> significa "NO ME IMPORTA" (Puede ser cualquier valor).</p>
+                                
+                                <strong>Ejemplo del Laboratorio 12:</strong><br>
+                                <code>IP: 192.168.10.0 | Wildcard: 0.0.0.255</code><br>
+                                <p>Explicación: "De la IP me importan los tres primeros octetos (192.168.10) porque tienen 0. El último octeto tiene 255 (puros 1 en binario), así que NO ME IMPORTA". Resultado: Abarca desde la IP .1 hasta la .254 de esa red.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <button class="accordion-header">
+                        <div class="header-left"><i class="fa-solid fa-terminal"></i><span>Comandos Exhaustivos: Las 5 Políticas</span></div>
+                        <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <p class="theory-text">Aplica esta <strong>ACL Extendida</strong> en el CORE para cumplir la rúbrica al 100%. (Reemplaza las IPs con las de tus servidores).</p>
+                            
+                            <div class="alert-box">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                                <div class="alert-box-content">
+                                    <strong>Bloqueo Implícito (Deny Any Any)</strong>
+                                    <p>Toda ACL tiene un bloqueo automático al final. Si omites el comando <span class="highlight-orange">permit ip any any</span> como última regla de tu lista, bloquearás todo el tráfico (pings, etc).</p>
+                                </div>
+                            </div>
+
+                            <div class="code-block">
+                                <span class="comment">! Entramos a configurar la ACL Extendida</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config)#</span> ip access-list extended POLITICAS_LIMA</span>
+                                
+                                <span class="comment">! POLÍTICA 1 - FTP: Permitir FTP (21) solo hacia el Servidor FTP (ej. 10.81.43.38)</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-ext-nacl)#</span> permit tcp any host 10.81.43.38 eq 21</span>
+                                
+                                <span class="comment">! POLÍTICA 2 - WEB: Permitir solo HTTP (80) y HTTPS (443)</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-ext-nacl)#</span> permit tcp any any eq 80</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-ext-nacl)#</span> permit tcp any any eq 443</span>
+                                
+                                <span class="comment">! POLÍTICA 3 - DHCP: Permitir UDP puertos 67 y 68</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-ext-nacl)#</span> permit udp any any eq 67</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-ext-nacl)#</span> permit udp any any eq 68</span>
+                                
+                                <span class="comment">! POLÍTICA 4 - CORREO: Permitir SMTP (25) y POP3 (110) hacia el Server Mail (ej. .37)</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-ext-nacl)#</span> permit tcp any host 10.81.43.37 eq 25</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-ext-nacl)#</span> permit tcp any host 10.81.43.37 eq 110</span>
+                                
+                                <span class="comment">! CRÍTICO: Evitar que el Deny Implícito bloquee todo lo demás (pings)</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-ext-nacl)#</span> permit ip any any</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-ext-nacl)#</span> exit</span>
+                                
+                                <span class="comment">! POLÍTICA 5 - SSH GESTIÓN: Crear la clave RSA y el usuario</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config)#</span> ip domain-name lima.com</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config)#</span> crypto key generate rsa <span class="comment">(Digita 1024)</span></span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config)#</span> username adminLima privilege 15 secret adminLima</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config)#</span> ip ssh version 2</span>
+                                
+                                <span class="comment">! Crear ACL Estándar para asegurar que solo la PC ADMIN acceda</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config)#</span> ip access-list standard ACL_GESTION</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-std-nacl)#</span> permit host 10.81.42.193 <span class="comment">(IP de tu PC Admin)</span></span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-std-nacl)#</span> exit</span>
+                                
+                                <span class="comment">! Aplicar la restricción SSH a las líneas virtuales</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config)#</span> line vty 0 4</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-line)#</span> transport input ssh</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-line)#</span> login local</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-line)#</span> access-class ACL_GESTION in</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MÓDULO 8 -->
+        <section id="modulo-8" class="module-section">
+            <div class="module-header">
+                <span class="module-number">08</span>
+                <h2 class="module-title">WLAN (Wireless) y Solución Cloud</h2>
+            </div>
+            <div class="card">
+                <div class="accordion-item">
+                    <button class="accordion-header active">
+                        <div class="header-left"><i class="fa-solid fa-wifi"></i><span>Configuración Wireless WPA2</span></div>
+                        <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <p class="theory-text">Para los Access Points (ej. AP-PT), entra a la pestaña "Config" -> Port 1. Asigna el SSID respectivo (ej. <code>WiFi-ClientesVLAN60</code>) y elige autenticación <strong>WPA2-PSK</strong> con una frase de paso sencilla como <code>0123456789</code>. Las Laptops o Smartphones deben configurarse con el mismo SSID y contraseña en su interfaz Wireless0.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <button class="accordion-header">
+                        <div class="header-left"><i class="fa-solid fa-cloud"></i><span>Justificación Cloud (Sustentación Teórica)</span></div>
+                        <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <p class="theory-text">Para la sustentación final (Hito 2), debes argumentar por qué se eligió Cloud en lugar de servidores On-Premise para los respaldos corporativos:</p>
+                            <div class="alert-box info">
+                                <i class="fa-solid fa-lightbulb"></i>
+                                <div class="alert-box-content">
+                                    <strong>Respuesta Ideal para la Sustentación:</strong>
+                                    <p>"Evaluamos proveedores y seleccionamos AWS S3 + AWS Backup porque nos permite cumplir con el modelo 3-2-1 de seguridad. Nos permite cambiar los altísimos costos de infraestructura física (CAPEX) por un modelo de pago por uso (OPEX). AWS nos ofrece escalabilidad inmediata, una durabilidad garantizada de 11 nueves (99.999999999%), y cifrado AES-256 nativo, características críticas que protegerán a MIEMPRESA contra desastres como ransomware o fallos de hardware."</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Interactions Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Accordion Logic
+            const accordionHeaders = document.querySelectorAll('.accordion-header');
+            accordionHeaders.forEach(header => {
+                header.addEventListener('click', function() {
+                    const content = this.nextElementSibling;
+                    const isActive = this.classList.contains('active');
+                    const parentCard = this.closest('.card');
+                    if (parentCard) {
+                        const allHeadersInCard = parentCard.querySelectorAll('.accordion-header');
+                        allHeadersInCard.forEach(h => {
+                            h.classList.remove('active');
+                            if (h.nextElementSibling) h.nextElementSibling.style.maxHeight = null;
+                        });
+                    }
+                    if (!isActive) {
+                        this.classList.add('active');
+                        content.style.maxHeight = content.scrollHeight + "px";
+                    }
+                });
+            });
+
+            // Init first accordions
+            document.querySelectorAll('.module-section').forEach(section => {
+                const firstHeader = section.querySelector('.accordion-header');
+                if (firstHeader) {
+                    firstHeader.classList.add('active');
+                    const content = firstHeader.nextElementSibling;
+                    content.style.maxHeight = content.scrollHeight + "px";
+                }
+            });
+
+            // Mobile Menu
+            const menuToggle = document.getElementById('menu-toggle');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            function toggleMenu() {
+                sidebar.classList.toggle('show');
+                overlay.classList.toggle('show');
+            }
+            if(menuToggle) menuToggle.addEventListener('click', toggleMenu);
+            if(overlay) overlay.addEventListener('click', toggleMenu);
+            
+            document.querySelectorAll('.sidebar-nav .nav-link').forEach(link => {
+                link.addEventListener('click', () => {
+                    if (window.innerWidth <= 992) toggleMenu();
+                });
+            });
+
+            // Scrollspy
+            const sections = document.querySelectorAll('.module-section');
+            const navLinks = document.querySelectorAll('.sidebar-nav .nav-link');
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    if (pageYOffset >= (section.offsetTop - 300)) {
+                        current = section.getAttribute('id');
+                    }
+                });
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (current && link.getAttribute('href') === '#' + current) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
