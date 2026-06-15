@@ -20,17 +20,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Init first accordions as open
-    document.querySelectorAll('.module-section').forEach(section => {
-        const firstHeader = section.querySelector('.accordion-header');
-        if (firstHeader) {
-            firstHeader.classList.add('active');
-            const content = firstHeader.nextElementSibling;
-            if (content) {
-                content.style.maxHeight = content.scrollHeight + "px";
-            }
-        }
-    });
+    // Init first accordions as open (Disabled per user request)
+    // document.querySelectorAll('.module-section').forEach(section => {
+    //     const firstHeader = section.querySelector('.accordion-header');
+    //     if (firstHeader) {
+    //         firstHeader.classList.add('active');
+    //         const content = firstHeader.nextElementSibling;
+    //         if (content) {
+    //             content.style.maxHeight = content.scrollHeight + "px";
+    //         }
+    //     }
+    // });
 
     // Mobile Menu
     const menuToggle = document.getElementById('menu-toggle');
