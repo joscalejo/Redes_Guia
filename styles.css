@@ -59,6 +59,7 @@ body {
 .sidebar-header .logo-icon {
     font-size: 2.5rem;
     background: linear-gradient(135deg, var(--accent-cyan), var(--accent-orange));
+    background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 1rem;
@@ -424,4 +425,21 @@ body {
     .module-title { font-size: 1.6rem; }
     .code-block { font-size: 0.8rem; padding: 2rem 1rem 1rem; }
     .data-table th, .data-table td { padding: 0.6rem 0.5rem; font-size: 0.85rem; }
+}
+
+/* Estilos básicos para el footer */
+.main-footer {
+    background-color: #1a1a1a; /* Color de fondo oscuro */
+    color: #ffffff;            /* Color de texto blanco */
+    text-align: end;        /* Centra el texto */
+    padding: 10px;             /* Espaciado interno */
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    padding-right: 60px;
+}
+
+/* Estilo opcional para darle color al corazón */
+.heart {
+    color: #e74c3c;            /* Color rojo para el corazón */
+    margin: 0 4px;             /* Espaciado a los lados del corazón */
 }
