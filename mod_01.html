@@ -1,0 +1,907 @@
+
+<!-- ============================================================== -->
+<!-- MÓDULO 00: TROUBLESHOOTING Y CHEATSHEET CLI                     -->
+<!-- ============================================================== -->
+<section id="modulo-0" class="module-section">
+    <div class="module-header">
+        <span class="module-number">00</span>
+        <h2 class="module-title">Troubleshooting y Cheatsheet CLI</h2>
+    </div>
+    <div class="card">
+
+        <!-- ====== ACCORDION 1: Modos del CLI ====== -->
+        <div class="accordion-item">
+            <button class="accordion-header active">
+                <div class="header-left"><i class="fa-solid fa-layer-group"></i><span>Modos del CLI de Cisco (¿Dónde estoy?)</span></div>
+                <i class="fa-solid fa-chevron-down accordion-icon"></i>
+            </button>
+            <div class="accordion-content">
+                <div class="accordion-inner">
+
+                    <div class="theory-box">
+                        <h4>¿Qué es el CLI?</h4>
+                        <p>El <strong>CLI (Command Line Interface)</strong> es la pantalla negra donde escribes comandos para configurar routers y switches Cisco. No tiene botones ni menús gráficos: todo se hace escribiendo texto. Piensa en él como una conversación con el equipo: tú le das instrucciones y él las ejecuta.</p>
+                        <p>Lo más importante que debes entender es que el CLI tiene <strong>diferentes "modos"</strong>, como niveles en un videojuego. Cada modo te permite hacer cosas distintas, y <strong>el símbolo al final del prompt (lo que ves antes de escribir) te dice en qué modo estás.</strong></p>
+                    </div>
+
+                    <p class="theory-text"><strong>Los 3 modos principales que SIEMPRE debes reconocer:</strong></p>
+
+                    <table class="data-table">
+                        <tr>
+                            <th>Modo</th>
+                            <th>Prompt (lo que ves)</th>
+                            <th>¿Cómo llego ahí?</th>
+                            <th>¿Qué puedo hacer?</th>
+                        </tr>
+                        <tr>
+                            <td><strong>User EXEC</strong> (modo usuario)</td>
+                            <td><span class="highlight-cyan">Router<strong>&gt;</strong></span></td>
+                            <td>Es donde inicias automáticamente al conectarte</td>
+                            <td>Muy poco: solo comandos básicos de <em>visualización</em> como <code>ping</code>, <code>show version</code>. <strong>No puedes cambiar nada.</strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Privileged EXEC</strong> (modo privilegiado)</td>
+                            <td><span class="highlight-cyan">Router<strong>#</strong></span></td>
+                            <td>Escribes <span class="highlight-orange">enable</span> desde User EXEC</td>
+                            <td>Puedes ver TODA la configuración (<code>show running-config</code>), guardar cambios, reiniciar el equipo. <strong>Aún no puedes configurar.</strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Global Configuration</strong> (modo de configuración global)</td>
+                            <td><span class="highlight-cyan">Router<strong>(config)#</strong></span></td>
+                            <td>Escribes <span class="highlight-orange">configure terminal</span> desde Privileged EXEC</td>
+                            <td>¡Aquí es donde configuras todo! Hostname, contraseñas, rutas, etc. <strong>Este es tu modo de trabajo principal.</strong></td>
+                        </tr>
+                    </table>
+
+                    <div class="theory-box">
+                        <h4>¿Cómo me muevo entre modos? (Navegar por el CLI)</h4>
+                        <p>Imagina una escalera de 3 peldaños. Siempre empiezas en el más bajo (User EXEC) y vas subiendo:</p>
+                        <p><strong>Subir:</strong> <span class="highlight-cyan">User EXEC &gt;</span> → escribe <span class="highlight-orange">enable</span> → <span class="highlight-cyan">Privileged EXEC #</span> → escribe <span class="highlight-orange">configure terminal</span> (o <span class="highlight-orange">conf t</span> como atajo) → <span class="highlight-cyan">Global Config (config)#</span></p>
+                        <p><strong>Bajar un nivel:</strong> escribe <span class="highlight-orange">exit</span> en cualquier modo para retroceder un paso.</p>
+                        <p><strong>Bajar DIRECTO al modo privilegiado:</strong> escribe <span class="highlight-orange">end</span> (o presiona <strong>Ctrl+Z</strong>) desde cualquier modo de configuración. Esto te saca de golpe al modo <span class="highlight-cyan">#</span>.</p>
+                    </div>
+
+                    <div class="code-block">
+                        <span class="comment">! Ejemplo completo: navegar entre los 3 modos</span>
+                        <span class="code-line"><span class="cli-prompt">Router></span> <span class="highlight-orange">enable</span></span>
+                        <span class="code-line"><span class="cli-prompt">Router#</span> <span class="highlight-orange">configure terminal</span></span>
+                        <span class="code-line"><span class="cli-prompt">Router(config)#</span> <span class="highlight-orange">exit</span></span>
+                        <span class="code-line"><span class="cli-prompt">Router#</span> <span class="highlight-orange">exit</span></span>
+                        <span class="code-line"><span class="cli-prompt">Router></span></span>
+                        <br>
+                        <span class="comment">! Atajo: desde cualquier sub-modo, "end" te lleva directo al #</span>
+                        <span class="code-line"><span class="cli-prompt">Router(config-if)#</span> <span class="highlight-orange">end</span></span>
+                        <span class="code-line"><span class="cli-prompt">Router#</span></span>
+                    </div>
+
+                    <p class="theory-text"><strong>Los sub-modos de configuración (dentro de Global Config):</strong></p>
+                    <p class="theory-text">Cuando estás en Global Config <span class="highlight-cyan">(config)#</span> y necesitas configurar algo específico (una interfaz, una VLAN, una línea de consola), entras a un <strong>sub-modo</strong>. El prompt cambia para decirte exactamente dónde estás:</p>
+
+                    <table class="data-table">
+                        <tr>
+                            <th>Sub-modo</th>
+                            <th>Prompt</th>
+                            <th>¿Cómo entro?</th>
+                            <th>¿Para qué sirve?</th>
+                        </tr>
+                        <tr>
+                            <td>Interfaz</td>
+                            <td><span class="highlight-cyan">(config-if)#</span></td>
+                            <td><span class="highlight-orange">interface GigabitEthernet0/0</span></td>
+                            <td>Configurar un puerto específico: IP, encender/apagar, velocidad</td>
+                        </tr>
+                        <tr>
+                            <td>VLAN</td>
+                            <td><span class="highlight-cyan">(config-vlan)#</span></td>
+                            <td><span class="highlight-orange">vlan 10</span></td>
+                            <td>Crear o nombrar una VLAN</td>
+                        </tr>
+                        <tr>
+                            <td>Router (protocolo de enrutamiento)</td>
+                            <td><span class="highlight-cyan">(config-router)#</span></td>
+                            <td><span class="highlight-orange">router rip</span> o <span class="highlight-orange">router ospf 1</span></td>
+                            <td>Configurar protocolos de enrutamiento (RIP, OSPF, EIGRP)</td>
+                        </tr>
+                        <tr>
+                            <td>Línea (consola/vty)</td>
+                            <td><span class="highlight-cyan">(config-line)#</span></td>
+                            <td><span class="highlight-orange">line console 0</span> o <span class="highlight-orange">line vty 0 4</span></td>
+                            <td>Configurar acceso por consola física o por Telnet/SSH remoto</td>
+                        </tr>
+                        <tr>
+                            <td>Sub-interfaz</td>
+                            <td><span class="highlight-cyan">(config-subif)#</span></td>
+                            <td><span class="highlight-orange">interface G0/0.10</span></td>
+                            <td>Crear sub-interfaces para Router-on-a-Stick (inter-VLAN routing)</td>
+                        </tr>
+                    </table>
+
+                    <div class="alert-box info">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <div class="alert-box-content">
+                            <strong>Truco: Usa el signo del prompt como brújula</strong>
+                            <p>Si alguna vez te pierdes, mira el prompt. Si ves <code>&gt;</code> estás en usuario, si ves <code>#</code> sin paréntesis estás en privilegiado, y si ves <code>(config-algo)#</code> estás en algún modo de configuración. ¡El prompt SIEMPRE te dice dónde estás!</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- ====== ACCORDION 2: Configuración Básica Obligatoria ====== -->
+        <div class="accordion-item">
+            <button class="accordion-header">
+                <div class="header-left"><i class="fa-solid fa-shield-halved"></i><span>Configuración Básica Obligatoria (Primer paso en TODO equipo)</span></div>
+                <i class="fa-solid fa-chevron-down accordion-icon"></i>
+            </button>
+            <div class="accordion-content">
+                <div class="accordion-inner">
+
+                    <div class="theory-box">
+                        <h4>¿Por qué configuración básica?</h4>
+                        <p>Antes de configurar VLANs, IPs, rutas o cualquier cosa avanzada, <strong>TODO equipo Cisco</strong> (sea switch o router) necesita una configuración de seguridad básica. Es como ponerle nombre, cerradura y un letrero de advertencia a tu casa antes de empezar a decorarla por dentro.</p>
+                        <p>La rúbrica de tu proyecto <strong>te quita puntos</strong> si no tienes esta configuración en CADA equipo. Así que memoriza estos comandos: los vas a repetir muchas veces.</p>
+                    </div>
+
+                    <p class="theory-text"><strong>Estos son los comandos y qué hace CADA uno:</strong></p>
+
+                    <table class="data-table">
+                        <tr>
+                            <th>Comando</th>
+                            <th>¿Qué hace?</th>
+                            <th>¿Por qué es necesario?</th>
+                        </tr>
+                        <tr>
+                            <td><span class="highlight-cyan">hostname</span> <span class="highlight-orange">NOMBRE</span></td>
+                            <td>Le pone un nombre al equipo. El prompt cambia de "Switch" a lo que tú pongas.</td>
+                            <td>Para identificar cada equipo en tu topología. Si tienes 10 switches, necesitas saber cuál es cuál.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="highlight-cyan">enable secret</span> <span class="highlight-orange">class</span></td>
+                            <td>Crea una contraseña encriptada para entrar al modo privilegiado (#).</td>
+                            <td>Sin esto, cualquiera podría escribir <code>enable</code> y tener acceso total al equipo. La palabra "class" es la contraseña (la puedes cambiar).</td>
+                        </tr>
+                        <tr>
+                            <td><span class="highlight-cyan">banner motd</span> <span class="highlight-orange">& Texto &</span></td>
+                            <td>Muestra un mensaje de advertencia cuando alguien se conecta al equipo.</td>
+                            <td>Es un requisito legal y de la rúbrica. Advierte que el acceso no autorizado está prohibido. El símbolo <code>&</code> es el delimitador (puede ser cualquier carácter que no esté en tu mensaje).</td>
+                        </tr>
+                        <tr>
+                            <td><span class="highlight-cyan">line console 0</span> → <span class="highlight-cyan">password</span> <span class="highlight-orange">cisco</span> → <span class="highlight-cyan">login</span></td>
+                            <td>Protege el acceso por cable de consola (la conexión física directa al equipo).</td>
+                            <td>Sin esto, alguien que conecte un cable de consola entra directo sin contraseña. El comando <code>login</code> activa la verificación.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="highlight-cyan">line vty 0 4</span> → <span class="highlight-cyan">password</span> <span class="highlight-orange">cisco</span> → <span class="highlight-cyan">login</span></td>
+                            <td>Protege el acceso remoto por Telnet/SSH (las 5 líneas virtuales: 0, 1, 2, 3 y 4).</td>
+                            <td>Sin esto, nadie podría conectarse remotamente al equipo. El rango <code>0 4</code> significa que permite hasta 5 conexiones simultáneas.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="highlight-cyan">service password-encryption</span></td>
+                            <td>Encripta TODAS las contraseñas en texto plano que aparecen en la configuración.</td>
+                            <td>Sin esto, si alguien ve tu <code>show running-config</code>, puede leer las contraseñas de consola y VTY directamente. Este comando las oculta con encriptación tipo 7.</td>
+                        </tr>
+                    </table>
+
+                    <p class="theory-text"><strong>Bloque completo para un SWITCH (copia y pega):</strong></p>
+
+                    <div class="code-block">
+                        <span class="comment">! ======================================================</span>
+                        <span class="comment">! CONFIGURACIÓN BÁSICA PARA SWITCH (Ejemplo: S1_LIMA)</span>
+                        <span class="comment">! Aplica esto a TODOS tus switches antes de hacer nada más</span>
+                        <span class="comment">! ======================================================</span>
+                        <br>
+                        <span class="comment">! Paso 1: Entrar al modo privilegiado</span>
+                        <span class="code-line"><span class="cli-prompt">Switch></span> <span class="highlight-orange">enable</span></span>
+                        <br>
+                        <span class="comment">! Paso 2: Entrar al modo de configuración global</span>
+                        <span class="code-line"><span class="cli-prompt">Switch#</span> <span class="highlight-orange">configure terminal</span></span>
+                        <br>
+                        <span class="comment">! Paso 3: Ponerle nombre al switch para identificarlo</span>
+                        <span class="code-line"><span class="cli-prompt">Switch(config)#</span> <span class="highlight-cyan">hostname</span> <span class="highlight-orange">S1_LIMA</span></span>
+                        <br>
+                        <span class="comment">! Paso 4: Crear contraseña encriptada para el modo privilegiado</span>
+                        <span class="comment">! "class" es la contraseña - la escribes al hacer "enable"</span>
+                        <span class="code-line"><span class="cli-prompt">S1_LIMA(config)#</span> <span class="highlight-cyan">enable secret</span> <span class="highlight-orange">class</span></span>
+                        <br>
+                        <span class="comment">! Paso 5: Crear mensaje de advertencia (banner)</span>
+                        <span class="comment">! El & es el delimitador, el mensaje va entre los dos &</span>
+                        <span class="code-line"><span class="cli-prompt">S1_LIMA(config)#</span> <span class="highlight-cyan">banner motd</span> <span class="highlight-orange">& Acceso solo para personal autorizado de MIEMPRESA &</span></span>
+                        <br>
+                        <span class="comment">! Paso 6: Proteger el acceso por consola (cable físico)</span>
+                        <span class="code-line"><span class="cli-prompt">S1_LIMA(config)#</span> <span class="highlight-cyan">line console 0</span></span>
+                        <span class="code-line"><span class="cli-prompt">S1_LIMA(config-line)#</span> <span class="highlight-cyan">password</span> <span class="highlight-orange">cisco</span></span>
+                        <span class="code-line"><span class="cli-prompt">S1_LIMA(config-line)#</span> <span class="highlight-cyan">login</span></span>
+                        <span class="code-line"><span class="cli-prompt">S1_LIMA(config-line)#</span> <span class="highlight-orange">exit</span></span>
+                        <br>
+                        <span class="comment">! Paso 7: Proteger el acceso remoto (Telnet/SSH)</span>
+                        <span class="comment">! "0 4" = 5 líneas virtuales = 5 personas pueden conectarse a la vez</span>
+                        <span class="code-line"><span class="cli-prompt">S1_LIMA(config)#</span> <span class="highlight-cyan">line vty 0 4</span></span>
+                        <span class="code-line"><span class="cli-prompt">S1_LIMA(config-line)#</span> <span class="highlight-cyan">password</span> <span class="highlight-orange">cisco</span></span>
+                        <span class="code-line"><span class="cli-prompt">S1_LIMA(config-line)#</span> <span class="highlight-cyan">login</span></span>
+                        <span class="code-line"><span class="cli-prompt">S1_LIMA(config-line)#</span> <span class="highlight-orange">exit</span></span>
+                        <br>
+                        <span class="comment">! Paso 8: Encriptar todas las contraseñas en texto plano</span>
+                        <span class="comment">! Sin esto, "cisco" aparecería legible en show running-config</span>
+                        <span class="code-line"><span class="cli-prompt">S1_LIMA(config)#</span> <span class="highlight-cyan">service password-encryption</span></span>
+                        <br>
+                        <span class="comment">! Paso 9: Salir y GUARDAR (¡IMPORTANTÍSIMO!)</span>
+                        <span class="code-line"><span class="cli-prompt">S1_LIMA(config)#</span> <span class="highlight-orange">end</span></span>
+                        <span class="code-line"><span class="cli-prompt">S1_LIMA#</span> <span class="highlight-cyan">copy running-config startup-config</span></span>
+                    </div>
+
+                    <p class="theory-text"><strong>Bloque completo para un ROUTER (copia y pega):</strong></p>
+
+                    <div class="code-block">
+                        <span class="comment">! ======================================================</span>
+                        <span class="comment">! CONFIGURACIÓN BÁSICA PARA ROUTER (Ejemplo: R_LIMA)</span>
+                        <span class="comment">! Es IDÉNTICA a la del switch. Solo cambia el nombre.</span>
+                        <span class="comment">! ======================================================</span>
+                        <br>
+                        <span class="comment">! Paso 1: Entrar al modo privilegiado</span>
+                        <span class="code-line"><span class="cli-prompt">Router></span> <span class="highlight-orange">enable</span></span>
+                        <br>
+                        <span class="comment">! Paso 2: Entrar al modo de configuración global</span>
+                        <span class="code-line"><span class="cli-prompt">Router#</span> <span class="highlight-orange">configure terminal</span></span>
+                        <br>
+                        <span class="comment">! Paso 3: Ponerle nombre al router</span>
+                        <span class="code-line"><span class="cli-prompt">Router(config)#</span> <span class="highlight-cyan">hostname</span> <span class="highlight-orange">R_LIMA</span></span>
+                        <br>
+                        <span class="comment">! Paso 4: Contraseña para modo privilegiado</span>
+                        <span class="code-line"><span class="cli-prompt">R_LIMA(config)#</span> <span class="highlight-cyan">enable secret</span> <span class="highlight-orange">class</span></span>
+                        <br>
+                        <span class="comment">! Paso 5: Banner de advertencia</span>
+                        <span class="code-line"><span class="cli-prompt">R_LIMA(config)#</span> <span class="highlight-cyan">banner motd</span> <span class="highlight-orange">& Acceso solo para personal autorizado de MIEMPRESA &</span></span>
+                        <br>
+                        <span class="comment">! Paso 6: Contraseña de consola</span>
+                        <span class="code-line"><span class="cli-prompt">R_LIMA(config)#</span> <span class="highlight-cyan">line console 0</span></span>
+                        <span class="code-line"><span class="cli-prompt">R_LIMA(config-line)#</span> <span class="highlight-cyan">password</span> <span class="highlight-orange">cisco</span></span>
+                        <span class="code-line"><span class="cli-prompt">R_LIMA(config-line)#</span> <span class="highlight-cyan">login</span></span>
+                        <span class="code-line"><span class="cli-prompt">R_LIMA(config-line)#</span> <span class="highlight-orange">exit</span></span>
+                        <br>
+                        <span class="comment">! Paso 7: Contraseña para acceso remoto</span>
+                        <span class="code-line"><span class="cli-prompt">R_LIMA(config)#</span> <span class="highlight-cyan">line vty 0 4</span></span>
+                        <span class="code-line"><span class="cli-prompt">R_LIMA(config-line)#</span> <span class="highlight-cyan">password</span> <span class="highlight-orange">cisco</span></span>
+                        <span class="code-line"><span class="cli-prompt">R_LIMA(config-line)#</span> <span class="highlight-cyan">login</span></span>
+                        <span class="code-line"><span class="cli-prompt">R_LIMA(config-line)#</span> <span class="highlight-orange">exit</span></span>
+                        <br>
+                        <span class="comment">! Paso 8: Encriptar contraseñas visibles</span>
+                        <span class="code-line"><span class="cli-prompt">R_LIMA(config)#</span> <span class="highlight-cyan">service password-encryption</span></span>
+                        <br>
+                        <span class="comment">! Paso 9: Guardar la configuración</span>
+                        <span class="code-line"><span class="cli-prompt">R_LIMA(config)#</span> <span class="highlight-orange">end</span></span>
+                        <span class="code-line"><span class="cli-prompt">R_LIMA#</span> <span class="highlight-cyan">copy running-config startup-config</span></span>
+                    </div>
+
+                    <div class="alert-box info">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <div class="alert-box-content">
+                            <strong>¿Por qué "enable secret" y no "enable password"?</strong>
+                            <p>Ambos crean una contraseña para el modo privilegiado, pero <strong>enable secret</strong> la guarda con encriptación fuerte (MD5), mientras que <strong>enable password</strong> la guarda en texto plano (o con encriptación débil tipo 7). Siempre usa <code>enable secret</code> — es lo que pide la rúbrica y es más seguro.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- ====== ACCORDION 3: Comandos de Diagnóstico ====== -->
+        <div class="accordion-item">
+            <button class="accordion-header">
+                <div class="header-left"><i class="fa-solid fa-stethoscope"></i><span>Comandos de Diagnóstico y Prueba</span></div>
+                <i class="fa-solid fa-chevron-down accordion-icon"></i>
+            </button>
+            <div class="accordion-content">
+                <div class="accordion-inner">
+
+                    <div class="theory-box">
+                        <h4>¿Para qué sirven los comandos de diagnóstico?</h4>
+                        <p>Cuando algo no funciona en tu red (y va a pasar muchas veces), necesitas herramientas para <strong>investigar qué está mal</strong>. Estos comandos son tus "instrumentos médicos": te permiten revisar si los cables están bien, si las IPs son correctas, si las rutas existen, y si los paquetes llegan a su destino.</p>
+                        <p><strong>Regla de oro:</strong> Después de configurar algo, <strong>SIEMPRE verifica</strong> con estos comandos que funcionó. No asumas que está bien solo porque no te dio error.</p>
+                    </div>
+
+                    <table class="data-table">
+                        <tr>
+                            <th>Comando</th>
+                            <th>¿Qué muestra?</th>
+                            <th>¿Cuándo lo uso?</th>
+                        </tr>
+                        <tr>
+                            <td><span class="highlight-cyan">ping</span> <span class="highlight-orange">[ip-destino]</span></td>
+                            <td>Envía 5 paquetes ICMP al destino y muestra si llegan. <code>!</code> = éxito, <code>.</code> = fallo. Ejemplo: <code>!!!!!</code> = 5/5, todo perfecto.</td>
+                            <td><strong>Siempre.</strong> Es tu primer comando de diagnóstico. ¿Configuraste una IP? Haz ping. ¿Creaste una ruta? Haz ping. ¿Algo no funciona? Haz ping.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="highlight-cyan">tracert</span> <span class="highlight-orange">[ip]</span> (desde PC) o <span class="highlight-cyan">traceroute</span> <span class="highlight-orange">[ip]</span> (desde router)</td>
+                            <td>Muestra CADA salto (router) que recorre el paquete hasta llegar al destino, con la IP de cada salto.</td>
+                            <td>Cuando el ping falla y quieres saber <strong>DÓNDE</strong> se rompe la comunicación. Te dice exactamente en qué router se detiene el paquete.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="highlight-cyan">show ip interface brief</span></td>
+                            <td>Una tabla resumen de TODAS las interfaces del equipo: nombre, IP asignada, y si está UP (activa) o DOWN (apagada).</td>
+                            <td>Para verificar que las IPs están bien asignadas y que las interfaces están encendidas. Si ves "administratively down", significa que la interfaz está apagada con <code>shutdown</code>.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="highlight-cyan">show ip route</span></td>
+                            <td>La tabla de enrutamiento completa del equipo. Muestra todas las redes que el equipo sabe cómo alcanzar. <strong>C</strong> = conectada directamente, <strong>S</strong> = ruta estática, <strong>R</strong> = aprendida por RIP, <strong>O</strong> = OSPF.</td>
+                            <td>Cuando un ping falla entre redes diferentes. Si la red destino no aparece en esta tabla, ¡el router no sabe cómo llegar! Necesitas agregar una ruta.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="highlight-cyan">show vlan brief</span></td>
+                            <td>Lista todas las VLANs creadas en el switch y qué puertos pertenecen a cada una.</td>
+                            <td>Después de crear VLANs y asignar puertos. Verifica que cada puerto esté en la VLAN correcta. Si un puerto no aparece en ninguna VLAN de tu tabla, probablemente está en la VLAN 1 (por defecto).</td>
+                        </tr>
+                        <tr>
+                            <td><span class="highlight-cyan">show interfaces trunk</span></td>
+                            <td>Muestra qué puertos están configurados como trunk y qué VLANs están permitidas en cada trunk.</td>
+                            <td>Cuando las PCs de una VLAN no se comunican entre switches. Si el trunk no existe o no permite tu VLAN, el tráfico no pasa.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="highlight-cyan">show running-config</span></td>
+                            <td>Muestra TODA la configuración actual del equipo (la que está en RAM). Es el "archivo completo" de todo lo que has configurado.</td>
+                            <td>Cuando quieres revisar todo de una vez, o cuando buscas un error y no sabes dónde está. Puedes usar <code>show running-config | section interface</code> para filtrar secciones.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="highlight-cyan">show interfaces</span> <span class="highlight-orange">[interfaz]</span></td>
+                            <td>Información detallada de una interfaz específica: velocidad, duplex, errores, paquetes enviados/recibidos.</td>
+                            <td>Cuando necesitas datos técnicos específicos de un puerto, como verificar si tiene errores o cuántos paquetes ha procesado.</td>
+                        </tr>
+                    </table>
+
+                    <div class="theory-box">
+                        <h4>El truco del "do" — ¡tu mejor amigo!</h4>
+                        <p>Los comandos <code>show</code> y <code>ping</code> normalmente solo funcionan en modo privilegiado (<span class="highlight-cyan">#</span>). Pero cuando estás configurando en modo <span class="highlight-cyan">(config)#</span>, no quieres salir de ahí solo para verificar algo.</p>
+                        <p><strong>La solución:</strong> agrega la palabra <span class="highlight-orange">do</span> antes del comando. Esto le dice al equipo "ejecuta este comando como si estuviera en modo privilegiado, aunque estoy en config".</p>
+                    </div>
+
+                    <div class="code-block">
+                        <span class="comment">! Sin "do": te da error porque estás en modo config</span>
+                        <span class="code-line"><span class="cli-prompt">S1_LIMA(config)#</span> show ip interface brief</span>
+                        <span class="code-line">              ^</span>
+                        <span class="code-line">% Invalid input detected at '^' marker.</span>
+                        <br>
+                        <span class="comment">! Con "do": ¡funciona perfecto sin salir de config!</span>
+                        <span class="code-line"><span class="cli-prompt">S1_LIMA(config)#</span> <span class="highlight-orange">do</span> <span class="highlight-cyan">show ip interface brief</span></span>
+                        <br>
+                        <span class="comment">! Más ejemplos del truco "do"</span>
+                        <span class="code-line"><span class="cli-prompt">S1_LIMA(config)#</span> <span class="highlight-orange">do</span> <span class="highlight-cyan">show vlan brief</span></span>
+                        <span class="code-line"><span class="cli-prompt">S1_LIMA(config)#</span> <span class="highlight-orange">do</span> <span class="highlight-cyan">ping 10.192.8.1</span></span>
+                        <span class="code-line"><span class="cli-prompt">S1_LIMA(config)#</span> <span class="highlight-orange">do</span> <span class="highlight-cyan">show running-config</span></span>
+                        <span class="code-line"><span class="cli-prompt">S1_LIMA(config-if)#</span> <span class="highlight-orange">do</span> <span class="highlight-cyan">write</span></span>
+                    </div>
+
+                    <div class="alert-box info">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <div class="alert-box-content">
+                            <strong>Truco extra: el primer ping a veces falla</strong>
+                            <p>No te asustes si ves <code>.!!!!</code> (el primer paquete falló, los otros 4 funcionaron). Esto es <strong>normal</strong> — el primer paquete se pierde porque el equipo está resolviendo la dirección MAC con ARP. Haz ping de nuevo y debería salir <code>!!!!!</code> (5 de 5).</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- ====== ACCORDION 4: Guardar Progreso ====== -->
+        <div class="accordion-item">
+            <button class="accordion-header">
+                <div class="header-left"><i class="fa-solid fa-floppy-disk"></i><span>Guardar tu Progreso (¡No pierdas todo!)</span></div>
+                <i class="fa-solid fa-chevron-down accordion-icon"></i>
+            </button>
+            <div class="accordion-content">
+                <div class="accordion-inner">
+
+                    <div class="alert-box">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <div class="alert-box-content">
+                            <strong>⚠️ SI NO GUARDAS, PIERDES TODO</strong>
+                            <p>Cuando cierras Packet Tracer o reinicias un equipo, <strong>toda la configuración que no hayas guardado DESAPARECE</strong>. Hemos visto compañeros perder horas de trabajo por no guardar. No seas uno de ellos. <strong>Guarda después de CADA cambio importante.</strong></p>
+                        </div>
+                    </div>
+
+                    <div class="theory-box">
+                        <h4>Entendiendo RAM vs NVRAM (¿Dónde vive tu configuración?)</h4>
+                        <p>Tu equipo Cisco tiene dos tipos de memoria importantes:</p>
+                        <p><strong>RAM (Running-Config):</strong> Es la memoria temporal, como la memoria RAM de tu computadora. Aquí está la configuración que estás usando <strong>en este momento</strong>. Todo lo que configuras va aquí primero. Pero si apagas el equipo, <strong>se borra</strong>.</p>
+                        <p><strong>NVRAM (Startup-Config):</strong> Es la memoria permanente, como el disco duro. Lo que guardes aquí <strong>sobrevive</strong> cuando apagas y prendes el equipo. Cuando el equipo enciende, copia el Startup-Config a la RAM.</p>
+                        <p><strong>Analogía:</strong> Imagina que estás escribiendo un documento en Word. Lo que ves en pantalla es la RAM (running-config). Si se va la luz, pierdes todo. Pero si le das "Guardar" (Ctrl+S), lo grabas en el disco duro (NVRAM/startup-config). La próxima vez que abras el archivo, está ahí.</p>
+                    </div>
+
+                    <p class="theory-text"><strong>Los 3 comandos para guardar (todos hacen lo mismo):</strong></p>
+
+                    <table class="data-table">
+                        <tr>
+                            <th>Comando</th>
+                            <th>¿Desde dónde lo ejecuto?</th>
+                            <th>Nota</th>
+                        </tr>
+                        <tr>
+                            <td><span class="highlight-cyan">copy running-config startup-config</span></td>
+                            <td>Modo privilegiado <span class="highlight-cyan">#</span></td>
+                            <td>El comando "oficial" y completo. Te preguntará el nombre del archivo destino — solo presiona <strong>Enter</strong> para aceptar el nombre por defecto.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="highlight-cyan">write memory</span> (o solo <span class="highlight-cyan">write</span> / <span class="highlight-cyan">wr</span>)</td>
+                            <td>Modo privilegiado <span class="highlight-cyan">#</span></td>
+                            <td>Atajo más corto. Hace exactamente lo mismo que el anterior. Muchos profesores prefieren este porque es más rápido de escribir.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="highlight-orange">do</span> <span class="highlight-cyan">wr</span></td>
+                            <td>Desde CUALQUIER modo de configuración <span class="highlight-cyan">(config)#</span></td>
+                            <td><strong>¡El más práctico!</strong> Puedes guardar sin salir del modo config. Usa el truco "do" que aprendimos arriba.</td>
+                        </tr>
+                    </table>
+
+                    <div class="code-block">
+                        <span class="comment">! Opción 1: Comando oficial (desde modo privilegiado)</span>
+                        <span class="code-line"><span class="cli-prompt">S1_LIMA#</span> <span class="highlight-cyan">copy running-config startup-config</span></span>
+                        <span class="code-line">Destination filename [startup-config]?    <span class="comment">← solo presiona Enter</span></span>
+                        <span class="code-line">Building configuration...</span>
+                        <span class="code-line">[OK]</span>
+                        <br>
+                        <span class="comment">! Opción 2: Atajo rápido (desde modo privilegiado)</span>
+                        <span class="code-line"><span class="cli-prompt">S1_LIMA#</span> <span class="highlight-cyan">wr</span></span>
+                        <span class="code-line">Building configuration...</span>
+                        <span class="code-line">[OK]</span>
+                        <br>
+                        <span class="comment">! Opción 3: Guardar sin salir de config (¡EL MEJOR!)</span>
+                        <span class="code-line"><span class="cli-prompt">S1_LIMA(config)#</span> <span class="highlight-orange">do</span> <span class="highlight-cyan">wr</span></span>
+                        <span class="code-line">Building configuration...</span>
+                        <span class="code-line">[OK]</span>
+                    </div>
+
+                    <div class="alert-box info">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <div class="alert-box-content">
+                            <strong>Consejo: Guarda también el archivo .pkt de Packet Tracer</strong>
+                            <p>Guardar la configuración dentro del equipo (running → startup) protege contra reinicios del equipo virtual. Pero también debes guardar el archivo <strong>.pkt</strong> de Packet Tracer (Ctrl+S en la ventana de Packet Tracer) para no perder tu topología completa si la aplicación se cierra.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+
+<!-- ============================================================== -->
+<!-- MÓDULO 01: DISEÑO LÓGICO IP Y VLSM                             -->
+<!-- ============================================================== -->
+<section id="modulo-1" class="module-section">
+    <div class="module-header">
+        <span class="module-number">01</span>
+        <h2 class="module-title">Diseño Lógico IP y VLSM (La Base de Todo)</h2>
+    </div>
+    <div class="card">
+
+        <!-- ====== ACCORDION 1: ¿Qué es una dirección IP? ====== -->
+        <div class="accordion-item">
+            <button class="accordion-header active">
+                <div class="header-left"><i class="fa-solid fa-map-location-dot"></i><span>¿Qué es una dirección IP y una máscara de subred?</span></div>
+                <i class="fa-solid fa-chevron-down accordion-icon"></i>
+            </button>
+            <div class="accordion-content">
+                <div class="accordion-inner">
+
+                    <div class="theory-box">
+                        <h4>La dirección IP — Tu "dirección de casa" en la red</h4>
+                        <p>Así como tu casa tiene una dirección (Av. Javier Prado 1234, Lima), cada dispositivo en una red necesita una <strong>dirección IP</strong> para que los demás sepan dónde encontrarlo. Sin una IP, un dispositivo es "invisible" en la red.</p>
+                        <p>Una dirección IP (versión 4, que es la que usamos) se ve así: <span class="highlight-cyan">10.192.8.1</span>. Son 4 números separados por puntos, donde cada número va de 0 a 255. En total son 32 bits (4 grupos de 8 bits cada uno).</p>
+                    </div>
+
+                    <div class="theory-box">
+                        <h4>La máscara de subred — ¿Qué parte es el "barrio" y qué parte es la "casa"?</h4>
+                        <p>Cada dirección IP tiene dos partes, pero no puedes verlas a simple vista. Necesitas la <strong>máscara de subred</strong> para separarlas:</p>
+                        <p><strong>Parte de Red (Network):</strong> Identifica el "barrio" o red a la que perteneces. Todos los dispositivos en la misma red comparten esta parte. Es como el nombre de tu calle.</p>
+                        <p><strong>Parte de Host:</strong> Identifica tu dispositivo específico dentro de esa red. Es como el número de tu casa.</p>
+                        <p><strong>Ejemplo con analogía:</strong> Si la dirección es "Calle Los Olivos, Casa #15", entonces "Calle Los Olivos" es la parte de red y "#15" es la parte de host. La máscara te dice dónde termina el nombre de la calle y empieza el número de casa.</p>
+                        <p>La máscara se puede escribir de dos formas: como decimal (<span class="highlight-orange">255.255.255.0</span>) o como prefijo (<span class="highlight-orange">/24</span>). El /24 significa que los primeros 24 bits son la parte de red.</p>
+                    </div>
+
+                    <p class="theory-text"><strong>Tabla de referencia de máscaras</strong> — Esta es la tabla más importante que usarás en todo el proyecto. Memoriza al menos /24, /25, /26 y /30:</p>
+
+                    <table class="data-table">
+                        <tr>
+                            <th>Prefijo</th>
+                            <th>Máscara Decimal</th>
+                            <th>Hosts Totales</th>
+                            <th>Hosts Utilizables</th>
+                            <th>¿Para qué se usa típicamente?</th>
+                        </tr>
+                        <tr>
+                            <td><span class="highlight-cyan">/24</span></td>
+                            <td>255.255.255.0</td>
+                            <td>256</td>
+                            <td><span class="highlight-orange">254</span></td>
+                            <td>Departamentos grandes (ventas con muchos empleados)</td>
+                        </tr>
+                        <tr>
+                            <td><span class="highlight-cyan">/25</span></td>
+                            <td>255.255.255.128</td>
+                            <td>128</td>
+                            <td><span class="highlight-orange">126</span></td>
+                            <td>Departamentos medianos</td>
+                        </tr>
+                        <tr>
+                            <td><span class="highlight-cyan">/26</span></td>
+                            <td>255.255.255.192</td>
+                            <td>64</td>
+                            <td><span class="highlight-orange">62</span></td>
+                            <td>Departamentos pequeños</td>
+                        </tr>
+                        <tr>
+                            <td><span class="highlight-cyan">/27</span></td>
+                            <td>255.255.255.224</td>
+                            <td>32</td>
+                            <td><span class="highlight-orange">30</span></td>
+                            <td>VLAN de gestión u oficinas pequeñas</td>
+                        </tr>
+                        <tr>
+                            <td><span class="highlight-cyan">/28</span></td>
+                            <td>255.255.255.240</td>
+                            <td>16</td>
+                            <td><span class="highlight-orange">14</span></td>
+                            <td>Grupos muy reducidos, servidores</td>
+                        </tr>
+                        <tr>
+                            <td><span class="highlight-cyan">/29</span></td>
+                            <td>255.255.255.248</td>
+                            <td>8</td>
+                            <td><span class="highlight-orange">6</span></td>
+                            <td>Segmentos mínimos con pocos equipos</td>
+                        </tr>
+                        <tr>
+                            <td><span class="highlight-cyan">/30</span></td>
+                            <td>255.255.255.252</td>
+                            <td>4</td>
+                            <td><span class="highlight-orange">2</span></td>
+                            <td>Enlaces punto a punto entre routers (WAN)</td>
+                        </tr>
+                    </table>
+
+                    <div class="theory-box">
+                        <h4>¿Por qué "Hosts Utilizables" son menos que "Hosts Totales"?</h4>
+                        <p>Porque en cada subred, <strong>2 direcciones están reservadas</strong> y no se pueden asignar a dispositivos:</p>
+                        <p><strong>La primera IP</strong> de la subred es la <span class="highlight-orange">dirección de red</span> (identifica a toda la subred, como el nombre del barrio). Ejemplo: 10.192.8.<strong>0</strong></p>
+                        <p><strong>La última IP</strong> de la subred es la <span class="highlight-orange">dirección de broadcast</span> (envía mensajes a TODOS los dispositivos de la subred a la vez). Ejemplo: 10.192.8.<strong>255</strong></p>
+                        <p>Por eso la fórmula es: <strong>Hosts utilizables = 2<sup>n</sup> - 2</strong>, donde <strong>n</strong> es el número de bits para hosts (32 - prefijo). Para /24: 2<sup>8</sup> - 2 = 256 - 2 = <strong>254 hosts</strong>.</p>
+                    </div>
+
+                    <div class="alert-box info">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <div class="alert-box-content">
+                            <strong>¿Cuál es la primera IP utilizable? → ¡Esa es tu Gateway!</strong>
+                            <p>Por convención, la <strong>primera IP utilizable</strong> de cada subred (la dirección de red + 1) se asigna al <strong>gateway</strong> (la "puerta de salida" de esa red, normalmente un router o switch L3). Ejemplo: si la red es 10.192.8.0/24, el gateway es <strong>10.192.8.1</strong>.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- ====== ACCORDION 2: ¿Qué es VLSM? ====== -->
+        <div class="accordion-item">
+            <button class="accordion-header">
+                <div class="header-left"><i class="fa-solid fa-scissors"></i><span>¿Qué es VLSM y por qué lo usamos?</span></div>
+                <i class="fa-solid fa-chevron-down accordion-icon"></i>
+            </button>
+            <div class="accordion-content">
+                <div class="accordion-inner">
+
+                    <div class="theory-box">
+                        <h4>FLSM vs VLSM — La diferencia explicada fácil</h4>
+                        <p><strong>FLSM (Fixed Length Subnet Masking):</strong> Imagina que tienes un pastel y lo cortas en pedazos iguales. No importa si un invitado tiene mucha hambre y otro poca — todos reciben el mismo tamaño. Funcional, pero <strong>desperdicias</strong> mucho pastel si los pedazos son demasiado grandes para algunos.</p>
+                        <p><strong>VLSM (Variable Length Subnet Masking):</strong> Ahora imagina que cortas el pastel en pedazos de diferentes tamaños según el hambre de cada invitado. El hambriento recibe un pedazo grande, y el que no tiene mucha hambre recibe uno chico. <strong>No desperdicias nada.</strong></p>
+                        <p>En redes: FLSM usa la <strong>misma máscara</strong> para todas las subredes (por ejemplo, todas /24). VLSM usa <strong>máscaras diferentes</strong> según cuántos hosts necesita cada departamento (/24 para uno grande, /26 para uno pequeño, /30 para un enlace WAN).</p>
+                        <p><strong>¿Por qué usamos VLSM en el proyecto?</strong> Porque la rúbrica lo pide, porque es lo que se usa en el mundo real, y porque con FLSM desperdiciaríamos miles de direcciones IP.</p>
+                    </div>
+
+                    <div class="theory-box">
+                        <h4>El proceso paso a paso para hacer VLSM</h4>
+                        <p>Sigue estos pasos en orden <strong>siempre</strong>. Si cambias el orden, el subnetting puede traslarse y causar solapamiento de redes:</p>
+                        <p><strong>Paso 1:</strong> Calcula el crecimiento proyectado. Multiplica el número actual de hosts por el factor de crecimiento:</p>
+                        <p>• <strong>Sede principal (Lima):</strong> Hosts actuales × <span class="highlight-orange">1.25</span> (25% de crecimiento a 10 años)</p>
+                        <p>• <strong>Sucursales:</strong> Hosts actuales × <span class="highlight-orange">1.20</span> (20% de crecimiento a 10 años)</p>
+                        <p><strong>Paso 2:</strong> Ordena TODAS las subredes de <span class="highlight-orange">MAYOR a MENOR</span> número de hosts (después de aplicar el crecimiento). La subred que necesite más hosts va PRIMERO.</p>
+                        <p><strong>Paso 3:</strong> Para cada subred, encuentra la máscara más pequeña que cubra la cantidad de hosts necesarios. Usa la tabla de prefijos que vimos arriba.</p>
+                        <p><strong>Paso 4:</strong> Asigna las direcciones en orden, una después de otra, sin dejar huecos y sin traslapes. La siguiente subred empieza donde termina la anterior.</p>
+                    </div>
+
+                    <div class="alert-box">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <div class="alert-box-content">
+                            <strong>¡SIEMPRE redondea hacia ARRIBA!</strong>
+                            <p>Si un departamento tiene 50 empleados y con el crecimiento del 25% necesitas 50 × 1.25 = 62.5 hosts, <strong>redondeas a 63</strong>. Luego buscas la máscara que cubra al menos 63 hosts utilizables → eso es un /26 (que da 62 hosts utilizables). ¡Pero 62 < 63! Entonces necesitas un <strong>/25</strong> (126 hosts). Siempre verifica que los <strong>hosts utilizables ≥ hosts necesarios</strong>.</p>
+                        </div>
+                    </div>
+
+                    <p class="theory-text"><strong>Ejemplo rápido de cálculo de crecimiento:</strong></p>
+
+                    <table class="data-table">
+                        <tr>
+                            <th>Departamento</th>
+                            <th>Hosts Actuales</th>
+                            <th>Factor</th>
+                            <th>Cálculo</th>
+                            <th>Hosts Necesarios (redondeado ↑)</th>
+                            <th>Máscara necesaria</th>
+                        </tr>
+                        <tr>
+                            <td>Ventas (Lima)</td>
+                            <td>200</td>
+                            <td>× 1.25</td>
+                            <td>200 × 1.25 = 250</td>
+                            <td><span class="highlight-orange">250</span></td>
+                            <td><span class="highlight-cyan">/24</span> (254 utilizables ≥ 250 ✓)</td>
+                        </tr>
+                        <tr>
+                            <td>Admin (Lima)</td>
+                            <td>100</td>
+                            <td>× 1.25</td>
+                            <td>100 × 1.25 = 125</td>
+                            <td><span class="highlight-orange">125</span></td>
+                            <td><span class="highlight-cyan">/25</span> (126 utilizables ≥ 125 ✓)</td>
+                        </tr>
+                        <tr>
+                            <td>Finanzas (Lima)</td>
+                            <td>50</td>
+                            <td>× 1.25</td>
+                            <td>50 × 1.25 = 62.5 → 63</td>
+                            <td><span class="highlight-orange">63</span></td>
+                            <td><span class="highlight-cyan">/26</span> (62 utilizables) ¡NO alcanza! → <span class="highlight-cyan">/25</span> o ajustar a 50 exactos con /26</td>
+                        </tr>
+                    </table>
+
+                    <div class="alert-box info">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <div class="alert-box-content">
+                            <strong>El orden importa: ¡De mayor a menor!</strong>
+                            <p>Si no ordenas de mayor a menor, podrías asignar una subred pequeña en medio y luego no tener espacio contiguo para una subred grande. Es como tratar de estacionar un camión en un espacio que dejaste entre dos autos: no cabe. Siempre estaciona primero el camión (subred grande), luego los autos (subredes medianas), y al final las motos (subredes chicas).</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- ====== ACCORDION 3: Subnetting de Ejemplo ====== -->
+        <div class="accordion-item">
+            <button class="accordion-header">
+                <div class="header-left"><i class="fa-solid fa-table-cells"></i><span>Nuestro Subnetting de Ejemplo (Tabla de Referencia)</span></div>
+                <i class="fa-solid fa-chevron-down accordion-icon"></i>
+            </button>
+            <div class="accordion-content">
+                <div class="accordion-inner">
+
+                    <div class="theory-box">
+                        <h4>Tabla maestra de IPs — Sede Lima</h4>
+                        <p>Esta es la tabla de referencia principal para la sede Lima. <strong>Cada vez que configures una IP en un switch, router o PC, vas a venir a consultar esta tabla.</strong> Imprimirla o tenerla en otra pantalla te va a ahorrar mucho tiempo y errores.</p>
+                        <p>La red base asignada para todo el proyecto es <span class="highlight-cyan">10.192.0.0/16</span>, y el bloque para la sede Lima es <span class="highlight-cyan">10.192.8.0/22</span> (que nos da direcciones desde 10.192.8.0 hasta 10.192.11.255).</p>
+                    </div>
+
+                    <p class="theory-text"><strong>Distribución de VLANs — Sede Lima:</strong></p>
+
+                    <table class="data-table">
+                        <tr>
+                            <th>Departamento</th>
+                            <th>VLAN #</th>
+                            <th>Dirección de Red</th>
+                            <th>Máscara</th>
+                            <th>Gateway (1ra IP útil)</th>
+                            <th>Última IP útil</th>
+                            <th>Broadcast</th>
+                            <th>Hosts útiles</th>
+                        </tr>
+                        <tr>
+                            <td><strong>Ventas</strong></td>
+                            <td><span class="highlight-orange">VLAN 10</span></td>
+                            <td><span class="highlight-cyan">10.192.8.0/24</span></td>
+                            <td>255.255.255.0</td>
+                            <td><span class="highlight-orange">10.192.8.1</span></td>
+                            <td>10.192.8.254</td>
+                            <td>10.192.8.255</td>
+                            <td>254</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Administración</strong></td>
+                            <td><span class="highlight-orange">VLAN 20</span></td>
+                            <td><span class="highlight-cyan">10.192.9.0/25</span></td>
+                            <td>255.255.255.128</td>
+                            <td><span class="highlight-orange">10.192.9.1</span></td>
+                            <td>10.192.9.126</td>
+                            <td>10.192.9.127</td>
+                            <td>126</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Finanzas</strong></td>
+                            <td><span class="highlight-orange">VLAN 30</span></td>
+                            <td><span class="highlight-cyan">10.192.9.128/26</span></td>
+                            <td>255.255.255.192</td>
+                            <td><span class="highlight-orange">10.192.9.129</span></td>
+                            <td>10.192.9.190</td>
+                            <td>10.192.9.191</td>
+                            <td>62</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Gestión</strong></td>
+                            <td><span class="highlight-orange">VLAN 99</span></td>
+                            <td><span class="highlight-cyan">10.192.11.192/27</span></td>
+                            <td>255.255.255.224</td>
+                            <td><span class="highlight-orange">10.192.11.193</span></td>
+                            <td>10.192.11.222</td>
+                            <td>10.192.11.223</td>
+                            <td>30</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Nativa (Black Hole)</strong></td>
+                            <td><span class="highlight-orange">VLAN 999</span></td>
+                            <td colspan="6" style="text-align: center;"><em>Sin dirección IP — Es una VLAN "agujero negro" para seguridad. Todo tráfico no etiquetado cae aquí y se descarta.</em></td>
+                        </tr>
+                    </table>
+
+                    <div class="theory-box">
+                        <h4>¿Cómo leer esta tabla? (Ejemplo con Ventas)</h4>
+                        <p>Tomemos la fila de Ventas para explicar cada columna:</p>
+                        <p><strong>Dirección de Red (10.192.8.0):</strong> Es la primera dirección de esta subred. NO se asigna a ningún dispositivo. Es solo el "nombre" de la red.</p>
+                        <p><strong>Gateway (10.192.8.1):</strong> Es la primera IP utilizable, y la asignamos al router o switch L3 que conecta esta VLAN con el resto de la red. Las PCs de Ventas configuran esta IP como su "puerta de enlace predeterminada" para poder comunicarse con otras redes.</p>
+                        <p><strong>Última IP útil (10.192.8.254):</strong> Es la última dirección que puedes asignar a un dispositivo en esta subred.</p>
+                        <p><strong>Broadcast (10.192.8.255):</strong> Es la última dirección de la subred. Se usa para enviar mensajes a TODOS los dispositivos de la red. NO se asigna a ningún dispositivo.</p>
+                        <p><strong>Máscara (255.255.255.0 = /24):</strong> Le dice a cada dispositivo qué parte de la IP es "red" y qué parte es "host". La configuras en cada PC y cada interfaz de router/switch.</p>
+                    </div>
+
+                    <div class="alert-box info">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <div class="alert-box-content">
+                            <strong>Las otras sedes siguen la misma lógica</strong>
+                            <p>La Libertad, Ica, Huánuco y Puno tienen la misma estructura de VLANs (10, 20, 30, 99, 999), pero con diferentes bloques de direcciones IP dentro del rango 10.192.0.0/16. El proceso de subnetting es idéntico — solo cambian los números. Si entiendes Lima, entiendes todas.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- ====== ACCORDION 4: VLAN de Gestión y enlaces /30 ====== -->
+        <div class="accordion-item">
+            <button class="accordion-header">
+                <div class="header-left"><i class="fa-solid fa-triangle-exclamation"></i><span>¡ALERTA! La VLAN de Gestión y los enlaces /30</span></div>
+                <i class="fa-solid fa-chevron-down accordion-icon"></i>
+            </button>
+            <div class="accordion-content">
+                <div class="accordion-inner">
+
+                    <div class="theory-box">
+                        <h4>VLAN de Gestión (VLAN 99) — ¿Para qué sirve?</h4>
+                        <p>Las VLANs 10, 20 y 30 son para las computadoras de los empleados (Ventas, Administración, Finanzas). Pero los <strong>equipos de red</strong> (switches, routers, access points) también necesitan una IP para que los puedas administrar remotamente.</p>
+                        <p>La <strong>VLAN de Gestión (VLAN 99)</strong> es una VLAN especial dedicada exclusivamente a los equipos de red. No se conectan computadoras de usuarios aquí — solo los switches, routers y access points reciben una IP de esta VLAN.</p>
+                        <p><strong>¿Por qué separarla?</strong> Por seguridad. Si un empleado malintencionado intenta acceder a los switches desde su PC, no puede porque está en otra VLAN. El tráfico de gestión viaja aislado del tráfico de usuarios.</p>
+                    </div>
+
+                    <div class="theory-box">
+                        <h4>¿Cuántas IPs necesita la VLAN de Gestión?</h4>
+                        <p>Necesitas <strong>1 IP por cada equipo de red</strong> que quieras administrar. Cuenta todos los dispositivos de red en tu sede:</p>
+                        <p><strong>Fórmula:</strong> Total de IPs = Routers + Switches L3 + Switches L2 + Access Points + (margen de crecimiento)</p>
+                    </div>
+
+                    <p class="theory-text"><strong>Ejemplo práctico para la sede Lima:</strong></p>
+
+                    <table class="data-table">
+                        <tr>
+                            <th>Tipo de equipo</th>
+                            <th>Cantidad</th>
+                            <th>¿Necesita IP de gestión?</th>
+                        </tr>
+                        <tr>
+                            <td>Router principal</td>
+                            <td>1</td>
+                            <td>Sí (para administrarlo remotamente)</td>
+                        </tr>
+                        <tr>
+                            <td>Switch L3 (Core/Distribución)</td>
+                            <td>1</td>
+                            <td>Sí (es el gateway de las VLANs)</td>
+                        </tr>
+                        <tr>
+                            <td>Switches L2 (Acceso)</td>
+                            <td>3</td>
+                            <td>Sí (uno por piso o departamento)</td>
+                        </tr>
+                        <tr>
+                            <td>Access Points (Wi-Fi)</td>
+                            <td>2</td>
+                            <td>Sí (para configurar la red inalámbrica)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Total</strong></td>
+                            <td><strong>7</strong></td>
+                            <td>Con crecimiento (× 1.25) = 8.75 → <strong>9 hosts</strong></td>
+                        </tr>
+                    </table>
+
+                    <p class="theory-text">Con 9 hosts necesarios, un <span class="highlight-cyan">/28</span> (14 hosts útiles) sobra, pero en nuestro diseño usamos <span class="highlight-cyan">/27</span> (30 hosts útiles) para dejar más margen de crecimiento. Es mejor que sobre espacio y no que falte.</p>
+
+                    <div class="theory-box">
+                        <h4>Enlaces /30 — Conexiones punto a punto entre routers</h4>
+                        <p>Cuando conectas dos routers entre sí (por ejemplo, el router de Lima con el router de La Libertad), ese cable solo conecta <strong>2 dispositivos</strong>: un extremo del router A y un extremo del router B. No necesitas 254 IPs para eso, ¡solo necesitas 2!</p>
+                        <p>Para eso existe la máscara <span class="highlight-cyan">/30</span> (255.255.255.252), que da exactamente <strong>2 hosts utilizables</strong>. Es la máscara más eficiente posible para un enlace punto a punto: una IP para cada lado del cable.</p>
+                        <p><strong>Anatomía de un bloque /30:</strong></p>
+                        <p>• <strong>1ra dirección:</strong> Dirección de red (no se usa)</p>
+                        <p>• <strong>2da dirección:</strong> IP del router A (primer host utilizable)</p>
+                        <p>• <strong>3ra dirección:</strong> IP del router B (segundo host utilizable)</p>
+                        <p>• <strong>4ta dirección:</strong> Broadcast (no se usa)</p>
+                    </div>
+
+                    <p class="theory-text"><strong>Ejemplo con los enlaces WAN de nuestro proyecto:</strong></p>
+                    <p class="theory-text">Usamos el rango <span class="highlight-cyan">172.16.0.0/30</span> para los enlaces punto a punto. Cada enlace WAN consume un bloque /30 de 4 direcciones:</p>
+
+                    <table class="data-table">
+                        <tr>
+                            <th>Enlace</th>
+                            <th>Red /30</th>
+                            <th>IP Lado A (router origen)</th>
+                            <th>IP Lado B (router destino)</th>
+                            <th>Broadcast</th>
+                        </tr>
+                        <tr>
+                            <td><strong>Lima ↔ La Libertad</strong></td>
+                            <td><span class="highlight-cyan">172.16.0.0/30</span></td>
+                            <td><span class="highlight-orange">172.16.0.1</span> (R_LIMA)</td>
+                            <td><span class="highlight-orange">172.16.0.2</span> (R_LIBERTAD)</td>
+                            <td>172.16.0.3</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Lima ↔ Ica</strong></td>
+                            <td><span class="highlight-cyan">172.16.0.4/30</span></td>
+                            <td><span class="highlight-orange">172.16.0.5</span> (R_LIMA)</td>
+                            <td><span class="highlight-orange">172.16.0.6</span> (R_ICA)</td>
+                            <td>172.16.0.7</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Lima ↔ Huánuco</strong></td>
+                            <td><span class="highlight-cyan">172.16.0.8/30</span></td>
+                            <td><span class="highlight-orange">172.16.0.9</span> (R_LIMA)</td>
+                            <td><span class="highlight-orange">172.16.0.10</span> (R_HUANUCO)</td>
+                            <td>172.16.0.11</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Lima ↔ Puno</strong></td>
+                            <td><span class="highlight-cyan">172.16.0.12/30</span></td>
+                            <td><span class="highlight-orange">172.16.0.13</span> (R_LIMA)</td>
+                            <td><span class="highlight-orange">172.16.0.14</span> (R_PUNO)</td>
+                            <td>172.16.0.15</td>
+                        </tr>
+                    </table>
+
+                    <div class="theory-box">
+                        <h4>¿Ves el patrón?</h4>
+                        <p>Cada bloque /30 usa exactamente 4 direcciones. El siguiente bloque empieza donde terminó el anterior:</p>
+                        <p>• Primer enlace: <strong>.0, .1, .2, .3</strong> → siguiente empieza en <strong>.4</strong></p>
+                        <p>• Segundo enlace: <strong>.4, .5, .6, .7</strong> → siguiente empieza en <strong>.8</strong></p>
+                        <p>• Tercer enlace: <strong>.8, .9, .10, .11</strong> → siguiente empieza en <strong>.12</strong></p>
+                        <p>Siempre sumas 4 al número de red anterior para obtener el siguiente bloque /30. Fácil de memorizar.</p>
+                    </div>
+
+                    <div class="alert-box">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <div class="alert-box-content">
+                            <strong>No confundas las redes de tránsito con las redes de las sedes</strong>
+                            <p>Las IPs <strong>10.192.x.x</strong> son para los dispositivos <em>dentro</em> de las sedes (PCs, impresoras, switches de acceso). Las IPs <strong>172.16.0.x</strong> son para los cables <em>entre</em> routers (enlaces WAN). Son dos mundos separados. Un router tiene una "pata" en cada mundo: interfaces LAN con IPs 10.192.x.x e interfaces WAN con IPs 172.16.0.x.</p>
+                        </div>
+                    </div>
+
+                    <div class="alert-box info">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <div class="alert-box-content">
+                            <strong>También se usan /30 dentro de cada sede</strong>
+                            <p>El enlace entre el router de la sede y el switch L3 Core también usa un bloque /30, porque es igualmente un enlace punto a punto entre solo 2 equipos. No tiene sentido "desperdiciar" un /24 (254 IPs) para un cable que solo conecta 2 dispositivos.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>

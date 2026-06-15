@@ -1,0 +1,403 @@
+
+        <section id="modulo-2" class="module-section">
+            <div class="module-header">
+                <span class="module-number">02</span>
+                <h2 class="module-title">Capa 2 - VLANs y Enlaces Troncales</h2>
+            </div>
+            <div class="card">
+                
+                <div class="accordion-item">
+                    <button class="accordion-header active">
+                        <div class="header-left"><i class="fa-solid fa-layer-group"></i><span>¿Qué es una VLAN y para qué sirve?</span></div>
+                        <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <p class="theory-text">Imagina que tienes un edificio con muchas oficinas y pasillos. Si no hay paredes, todos escuchan el ruido de todos (esto se llama un <strong>Dominio de Broadcast</strong> único). Las VLANs (Redes de Área Local Virtuales) son como paredes lógicas que separan a los diferentes departamentos (Ventas, Finanzas, Administración) para que el tráfico no se mezcle, mejorando el rendimiento y la seguridad.</p>
+                            <p class="theory-text">Con las VLANs, puedes tener varias redes separadas LÓGICAMENTE usando el mismo switch FÍSICO.</p>
+                            
+                            <div class="alert-box">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                                <div class="alert-box-content">
+                                    <strong>¡ALERTA CRÍTICA! La diferencia entre VLAN Nativa y VLAN de Gestión</strong>
+                                    <p>Muchos estudiantes confunden esto en las sustentaciones. ¡Aprende la diferencia!</p>
+                                    <ul>
+                                        <li><strong>VLAN 99 (Gestión):</strong> Es como la "oficina del administrador". <strong>SÍ recibe una dirección IP</strong>. Se usa para conectarte a los switches y routers por SSH y configurarlos de manera remota.</li>
+                                        <li><strong>VLAN 999 (Nativa):</strong> Es como un "agujero negro". <strong>NO recibe dirección IP</strong>. Su único trabajo es capturar tráfico sin etiqueta (untagged traffic) en los cables troncales. Cambiamos la VLAN Nativa de la VLAN 1 (por defecto) a la 999 por pura medida de seguridad contra ataques de "VLAN hopping".</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <button class="accordion-header">
+                        <div class="header-left"><i class="fa-solid fa-plug"></i><span>Paso a Paso: Crear VLANs y Asignar Puertos de Acceso</span></div>
+                        <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <p class="theory-text">Primero debemos enseñarle al Switch qué VLANs existen. Luego, debemos conectar los cables de las computadoras (PCs, impresoras, servidores) a los puertos y decirle al Switch "este puerto pertenece a esta VLAN". Un puerto que conecta a un equipo final se llama puerto de <strong>Acceso</strong>.</p>
+                            
+                            <div class="code-block">
+                                <span class="comment">! 1. CREAR LAS VLANS (Ejemplo para un Switch de Acceso)</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config)#</span> vlan 10</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> name Ventas</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> vlan 20</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> name Administracion</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> vlan 30</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> name Finanzas</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> vlan 99</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> name Gestion</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> vlan 999</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> name Nativa</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> exit</span>
+                                <br>
+                                <span class="comment">! 2. ASIGNAR PUERTOS A LAS VLANS (Modo Acceso)</span>
+                                <span class="comment">! Usamos 'interface range' para configurar varios puertos a la vez</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config)#</span> interface range fastEthernet 0/1 - 10</span>
+                                <span class="comment">! Decimos que estos puertos van a equipos finales:</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-if-range)#</span> switchport mode <span class="highlight-cyan">access</span></span>
+                                <span class="comment">! Metemos estos puertos en la VLAN 10 (Ventas):</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-if-range)#</span> switchport access <span class="highlight-cyan">vlan 10</span></span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-if-range)#</span> exit</span>
+                                <br>
+                                <span class="comment">! 3. CREAR LA SVI DE GESTIÓN PARA PODER ADMINISTRAR EL SWITCH</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config)#</span> interface vlan 99</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-if)#</span> ip address 10.192.11.195 255.255.255.224</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-if)#</span> no shutdown</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-if)#</span> exit</span>
+                                <span class="comment">! El switch necesita una puerta de enlace para saber cómo salir de su red</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config)#</span> ip default-gateway 10.192.11.193</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <button class="accordion-header">
+                        <div class="header-left"><i class="fa-solid fa-arrows-split-up-and-left"></i><span>Paso a Paso: Configurar Enlaces Troncales</span></div>
+                        <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <p class="theory-text">Si tenemos 5 VLANs en nuestro Switch de Acceso, ¿necesitamos 5 cables diferentes para llevar la información al Switch Principal (Core)? ¡No! Usamos un cable especial llamado <strong>Enlace Troncal (Trunk)</strong>. Es como una autopista con muchos carriles, donde el tráfico de TODAS las VLANs viaja mezclado, pero empaquetado (etiquetado) para no confundirse.</p>
+                            
+                            <div class="code-block">
+                                <span class="comment">! CONFIGURACIÓN DEL PUERTO TRONCAL (Cable que va hacia otro Switch)</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config)#</span> interface gigabitEthernet 0/1</span>
+                                <span class="comment">! Convertimos el puerto en modo Troncal:</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-if)#</span> switchport mode <span class="highlight-cyan">trunk</span></span>
+                                <span class="comment">! Cambiamos la VLAN nativa a la 999 (por seguridad):</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-if)#</span> switchport trunk <span class="highlight-cyan">native vlan 999</span></span>
+                                <span class="comment">! Opcional/Recomendado: Permitir solo las VLANs que necesitamos</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-if)#</span> switchport trunk <span class="highlight-cyan">allowed vlan all</span></span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-if)#</span> exit</span>
+                            </div>
+
+                            <div class="alert-box info">
+                                <i class="fa-solid fa-lightbulb"></i>
+                                <div class="alert-box-content">
+                                    <strong>¡Cuidado con la VLAN Nativa!</strong>
+                                    <p>Para que un enlace troncal funcione correctamente, <strong>AMBOS EXTREMOS del cable deben tener la misma VLAN nativa</strong>. Si en un switch pones la 999 y en el otro dejas la 1, Cisco te inundará la consola de mensajes de error de "Native VLAN Mismatch".</p>
+                                </div>
+                            </div>
+                            
+                            <table class="data-table">
+                                <tr>
+                                    <th>Comando de Verificación</th>
+                                    <th>¿Qué hace?</th>
+                                </tr>
+                                <tr>
+                                    <td><strong><span class="highlight-cyan">show vlan brief</span></strong></td>
+                                    <td>Verifica que creaste las VLANs y muestra qué puertos de acceso están en cada una.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong><span class="highlight-cyan">show interfaces trunk</span></strong></td>
+                                    <td>Verifica qué puertos son troncales, qué VLAN nativa usan y qué VLANs están permitidas por ellos.</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section id="modulo-3" class="module-section">
+            <div class="module-header">
+                <span class="module-number">03</span>
+                <h2 class="module-title">El Núcleo L3 - Enrutamiento Inter-VLAN</h2>
+            </div>
+            <div class="card">
+                
+                <div class="accordion-item">
+                    <button class="accordion-header active">
+                        <div class="header-left"><i class="fa-solid fa-microchip"></i><span>¿Por qué necesitamos un Switch de Capa 3?</span></div>
+                        <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <p class="theory-text">Las VLANs separan el tráfico tan bien, que ahora la PC de Ventas (VLAN 10) <strong>NO puede comunicarse</strong> con la PC de Finanzas (VLAN 30). ¡Están en mundos distintos! Para que puedan hablar, necesitamos un intermediario que conecte esos mundos: un <strong>Router</strong>.</p>
+                            <p class="theory-text">Existen dos formas de hacer esto:</p>
+                            <ul>
+                                <li><strong style="color:var(--accent-orange)">Router-on-a-stick:</strong> Se usa un Router físico tradicional con subinterfaces (Ej. Fa0/0.10, Fa0/0.20). Es fácil de hacer, pero todo el tráfico pasa por un solo cable y el router se convierte en un cuello de botella.</li>
+                                <li><strong style="color:var(--accent-cyan)">Switch Multicapa (L3):</strong> Usamos un "Super Switch" que tiene el cerebro de un Router por dentro. Crea interfaces virtuales (SVIs) para cada VLAN y rutea a la velocidad de la luz por hardware. <strong>¡Esta es la forma Enterprise y la que exige este proyecto!</strong></li>
+                            </ul>
+                            
+                            <div class="theory-box">
+                                <h4>La Magia del "ip routing"</h4>
+                                <p>Un Switch Multicapa, al sacarlo de su caja, funciona solo como un switch tonto de capa 2. Para despertar su cerebro de router, tienes que activar el comando maestro: <strong><span class="highlight-cyan">ip routing</span></strong>.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <button class="accordion-header">
+                        <div class="header-left"><i class="fa-solid fa-network-wired"></i><span>Paso a Paso: Configurar el Switch de Distribución (Con SVIs)</span></div>
+                        <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <p class="theory-text">Una <strong>SVI (Switch Virtual Interface)</strong> es una puerta de enlace virtual. Es la IP que pondremos en la configuración de Default Gateway de las PCs de los usuarios. Aquí está la configuración para el Switch Multicapa de Distribución en Lima.</p>
+                            
+                            <div class="code-block">
+                                <span class="comment">! CONFIGURACIÓN DEL SWITCH DE DISTRIBUCIÓN (Ej: D1_LIMA)</span>
+                                <span class="comment">! 1. Despertar el cerebro del router</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config)#</span> ip routing</span>
+                                <br>
+                                <span class="comment">! 2. Crear las VLANs que llegarán desde abajo</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config)#</span> vlan 10</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config-vlan)#</span> name Ventas</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config-vlan)#</span> vlan 20</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config-vlan)#</span> name Admin</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config-vlan)#</span> vlan 99</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config-vlan)#</span> name Gestion</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config-vlan)#</span> exit</span>
+                                <br>
+                                <span class="comment">! 3. Crear las SVIs (El Default Gateway de cada VLAN)</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config)#</span> interface <span class="highlight-cyan">vlan 10</span></span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config-if)#</span> ip address <span class="highlight-orange">10.192.8.1 255.255.255.0</span></span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config-if)#</span> no shutdown</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config-if)#</span> exit</span>
+                                <br>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config)#</span> interface <span class="highlight-cyan">vlan 20</span></span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config-if)#</span> ip address <span class="highlight-orange">10.192.9.1 255.255.255.128</span></span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config-if)#</span> no shutdown</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config-if)#</span> exit</span>
+                                <br>
+                                <span class="comment">! 4. Configurar el puerto que va HACIA ARRIBA (Al Core) como PUERTO RUTEADO</span>
+                                <span class="comment">! 'no switchport' quita la funcion de capa 2 y permite ponerle una IP directa</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config)#</span> interface gigabitEthernet 1/0/24</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config-if)#</span> <span class="highlight-cyan">no switchport</span></span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config-if)#</span> ip address 172.16.0.2 255.255.255.252</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config-if)#</span> no shutdown</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config-if)#</span> exit</span>
+                                <br>
+                                <span class="comment">! 5. No olvides configurar el RIPv2 para anunciar estas redes</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config)#</span> router rip</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config-router)#</span> version 2</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config-router)#</span> no auto-summary</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config-router)#</span> network 10.0.0.0</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config-router)#</span> network 172.16.0.0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <button class="accordion-header">
+                        <div class="header-left"><i class="fa-solid fa-server"></i><span>Paso a Paso: Configurar el Switch Core Central</span></div>
+                        <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <p class="theory-text">El Core Central L3 es como el gran jefe de Lima. Su única misión es rutear paquetes a la velocidad de la luz. <strong>El Core NO TIENE PCs conectadas, por lo que NO tiene VLANs de usuarios, ni necesita SVIs.</strong> Solo tiene puertos ruteados punto a punto (/30).</p>
+                            
+                            <div class="code-block">
+                                <span class="comment">! CONFIGURACIÓN DEL SWITCH CORE CENTRAL (CORE_LIMA)</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config)#</span> ip routing</span>
+                                <br>
+                                <span class="comment">! 1. Puertos hacia los Switches de Distribución (D1, D2, D3)</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config)#</span> interface gigabitEthernet 1/0/1</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-if)#</span> <span class="highlight-cyan">no switchport</span></span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-if)#</span> ip address 172.16.0.1 255.255.255.252</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-if)#</span> no shutdown</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-if)#</span> exit</span>
+                                <br>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config)#</span> interface gigabitEthernet 1/0/2</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-if)#</span> <span class="highlight-cyan">no switchport</span></span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-if)#</span> ip address 172.16.0.5 255.255.255.252</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-if)#</span> no shutdown</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-if)#</span> exit</span>
+                                <br>
+                                <span class="comment">! 2. Puerto HACIA ARRIBA (Hacia el Router Perimetral 2911)</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config)#</span> interface gigabitEthernet 1/0/24</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-if)#</span> <span class="highlight-cyan">no switchport</span></span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-if)#</span> ip address 172.16.0.13 255.255.255.252</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-if)#</span> no shutdown</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-if)#</span> exit</span>
+                                <br>
+                                <span class="comment">! 3. Activar RIPv2</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config)#</span> router rip</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-router)#</span> version 2</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-router)#</span> no auto-summary</span>
+                                <span class="comment">! Solo anunciamos las redes de interconexión 172.16.x.x, ya que no hay PCs locales</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-router)#</span> network 172.16.0.0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <button class="accordion-header">
+                        <div class="header-left"><i class="fa-solid fa-diagram-project"></i><span>Resumen Visual: ¿Quién conecta con quién?</span></div>
+                        <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <div class="theory-box">
+                                <h4>El Flujo del Tráfico en la Red Corporativa</h4>
+                                <p>Visualiza el camino que toma la información desde la computadora del empleado hasta la salida de la sede:</p>
+                                <ul>
+                                    <li><strong>1. PC:</strong> Conectada al Switch de Acceso.</li>
+                                    <li><strong>2. Switch de Acceso L2:</strong> No rutea. Recoge los cables de las PCs y agrupa las VLANs en un <strong>enlace troncal</strong> hacia arriba.</li>
+                                    <li><strong>3. Switch de Distribución L3:</strong> Recibe el troncal. Tiene las <strong>SVIs (Gateways)</strong> de las PCs. Rutea el tráfico entre VLANs. Sale hacia el Core usando un <strong>puerto ruteado (/30)</strong>.</li>
+                                    <li><strong>4. Switch Core Central L3:</strong> Recibe cables ruteados de todos los Switches de Distribución. Su trabajo es enrutar a toda velocidad. Sale hacia el Router Perimetral con otro <strong>puerto ruteado (/30)</strong>.</li>
+                                    <li><strong>5. Router 2911:</strong> Frontera de la sede. Recibe tráfico del Core L3 y decide si lo envía por los enlaces seriales WAN hacia otras sedes, o si lo lanza a Internet.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section id="modulo-4" class="module-section">
+            <div class="module-header">
+                <span class="module-number">04</span>
+                <h2 class="module-title">Enlaces WAN y Autenticación PPP (PAP y CHAP)</h2>
+            </div>
+            <div class="card">
+                
+                <div class="accordion-item">
+                    <button class="accordion-header active">
+                        <div class="header-left"><i class="fa-solid fa-globe"></i><span>¿Qué es un enlace WAN y qué es PPP?</span></div>
+                        <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <p class="theory-text"><strong>WAN (Wide Area Network):</strong> Son redes inmensas. Sirven para unir nuestras sucursales geográficamente lejanas. En nuestro proyecto, Lima está en el centro conectada hacia Ica, La Libertad, Huánuco y Puno mediante cables seriales rojos (Topología Hub-and-Spoke).</p>
+                            <p class="theory-text">Por defecto, cuando conectas un cable serial en Cisco, el idioma de empaquetado (encapsulamiento) de los datos es HDLC. Sin embargo, para mayor seguridad, usamos el protocolo <strong>PPP (Point-to-Point Protocol)</strong>. PPP envuelve los datos y añade una capa de autenticación, es decir, ¡pide usuario y contraseña antes de permitir que la otra sede se conecte!</p>
+                            
+                            <div class="theory-box">
+                                <h4>DCE vs DTE (El Relojito)</h4>
+                                <p>En los cables seriales viejos, un lado del cable manda (DCE) y el otro obedece (DTE). El lado DCE tiene un ícono de un pequeño reloj rojo en Packet Tracer. Ese lado <strong>debe dictar la velocidad</strong> usando el comando <code>clock rate 64000</code> en la interfaz serial.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <button class="accordion-header">
+                        <div class="header-left"><i class="fa-solid fa-unlock-keyhole"></i><span>PAP: Autenticación Simple (Texto Plano)</span></div>
+                        <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <p class="theory-text"><strong>PAP (Password Authentication Protocol):</strong> Es un método básico y de 2 pasos. Funciona como mostrarle tu DNI a un guardia en la puerta. El problema es que envía tu clave "desnuda" por la red, así que un hacker podría verla. La rúbrica nos pide implementar ambos métodos, PAP y CHAP. Aquí tienes cómo se configura PAP.</p>
+                            
+                            <div class="alert-box info">
+                                <i class="fa-solid fa-lightbulb"></i>
+                                <div class="alert-box-content">
+                                    <strong>¡El Patrón Cruzado!</strong>
+                                    <p>Para la autenticación, cada Router debe tener guardado en su base de datos el nombre del <strong>Router Vecino</strong> como usuario, y la contraseña debe ser la misma.</p>
+                                </div>
+                            </div>
+
+                            <div class="code-block">
+                                <span class="comment">! CONFIGURACIÓN PAP (Ejemplo: Enlace entre Lima e Ica)</span>
+                                <span class="comment">! ---- EN ROUTER_LIMA ----</span>
+                                <span class="comment">! 1. Crear el usuario del vecino</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config)#</span> username Router_Ica secret miclave123</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config)#</span> interface s0/0/0</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config-if)#</span> ip address 172.16.1.1 255.255.255.252</span>
+                                <span class="comment">! Si es el lado DCE, poner el reloj:</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config-if)#</span> clock rate 64000</span>
+                                <span class="comment">! 2. Cambiar de HDLC a PPP y activar PAP</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config-if)#</span> encapsulation <span class="highlight-cyan">ppp</span></span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config-if)#</span> ppp authentication <span class="highlight-cyan">pap</span></span>
+                                <span class="comment">! 3. CRÍTICO: Mandarle TÚ usuario y TÚ clave al vecino para que te deje entrar</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config-if)#</span> ppp pap sent-username <span class="highlight-orange">Router_Lima</span> password <span class="highlight-orange">miclave123</span></span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config-if)#</span> no shutdown</span>
+                                <br>
+                                <span class="comment">! ---- EN ROUTER_ICA (El Espejo) ----</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Ica(config)#</span> username Router_Lima secret miclave123</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Ica(config)#</span> interface s0/0/0</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Ica(config-if)#</span> ip address 172.16.1.2 255.255.255.252</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Ica(config-if)#</span> encapsulation <span class="highlight-cyan">ppp</span></span>
+                                <span class="code-line"><span class="cli-prompt">Router_Ica(config-if)#</span> ppp authentication <span class="highlight-cyan">pap</span></span>
+                                <span class="code-line"><span class="cli-prompt">Router_Ica(config-if)#</span> ppp pap sent-username <span class="highlight-orange">Router_Ica</span> password <span class="highlight-orange">miclave123</span></span>
+                                <span class="code-line"><span class="cli-prompt">Router_Ica(config-if)#</span> no shutdown</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <button class="accordion-header">
+                        <div class="header-left"><i class="fa-solid fa-lock-open"></i><span>CHAP: Autenticación Segura (Cifrada)</span></div>
+                        <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <p class="theory-text"><strong>CHAP (Challenge Handshake Authentication Protocol):</strong> Es un método seguro de 3 pasos. Funciona como un agente secreto que te da un acertijo, lo resuelves con tu clave, y solo envías la respuesta. La clave secreta <strong>NUNCA viaja por el cable</strong>, lo que hace imposible que un hacker la robe. CHAP es más inteligente y automático que PAP.</p>
+                            
+                            <div class="code-block">
+                                <span class="comment">! CONFIGURACIÓN CHAP (Ejemplo: Enlace entre Lima y La Libertad)</span>
+                                <span class="comment">! ---- EN ROUTER_LIMA ----</span>
+                                <span class="comment">! 1. Crear el usuario del vecino. (¡OJO! Sensible a mayúsculas y minúsculas)</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config)#</span> username Router_LaLibertad secret miclave123</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config)#</span> interface s0/0/1</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config-if)#</span> encapsulation <span class="highlight-cyan">ppp</span></span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config-if)#</span> ppp authentication <span class="highlight-cyan">chap</span></span>
+                                <span class="comment">! (¡No necesitas el comando sent-username! CHAP lo hace solo)</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config-if)#</span> no shutdown</span>
+                                <br>
+                                <span class="comment">! ---- EN ROUTER_LALIBERTAD ----</span>
+                                <span class="code-line"><span class="cli-prompt">Router_LaLibertad(config)#</span> username Router_Lima secret miclave123</span>
+                                <span class="code-line"><span class="cli-prompt">Router_LaLibertad(config)#</span> interface s0/0/1</span>
+                                <span class="code-line"><span class="cli-prompt">Router_LaLibertad(config-if)#</span> encapsulation <span class="highlight-cyan">ppp</span></span>
+                                <span class="code-line"><span class="cli-prompt">Router_LaLibertad(config-if)#</span> ppp authentication <span class="highlight-cyan">chap</span></span>
+                                <span class="code-line"><span class="cli-prompt">Router_LaLibertad(config-if)#</span> no shutdown</span>
+                            </div>
+
+                            <div class="alert-box">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                                <div class="alert-box-content">
+                                    <strong>¿Mi línea serial se quedó en "down"?</strong>
+                                    <p>Si la interfaz no levanta al usar PPP, verifica 3 cosas en orden: 1. ¿Tienen ambos lados 'encapsulation ppp'? (No puedes mezclar HDLC de un lado y PPP del otro). 2. ¿La contraseña es exactamente igual en ambos lados? 3. ¿El 'username' que pusiste coincide letra por letra con el 'hostname' configurado en el otro router?</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <button class="accordion-header">
+                        <div class="header-left"><i class="fa-solid fa-scale-balanced"></i><span>¿Cuándo usar PAP y cuándo CHAP?</span></div>
+                        <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <p class="theory-text">La rúbrica indica explícitamente: "<strong>Configurar autenticación PAP/CHAP en los enlaces Seriales.</strong>". Esto significa que debes demostrar que sabes hacer AMBOS.</p>
+                            <p class="theory-text"><strong>Mi recomendación de diseño:</strong> Aplica CHAP para las conexiones principales como Lima-LaLibertad y Lima-Huánuco, y aplica PAP para Lima-Ica y Lima-Puno. Así, cuando expongas, podrás mostrar ambos métodos operando en la misma red sin problemas.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>

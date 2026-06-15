@@ -1,0 +1,459 @@
+
+        <section id="modulo-5" class="module-section">
+            <div class="module-header">
+                <span class="module-number">05</span>
+                <h2 class="module-title">Enrutamiento Dinámico RIPv2 y Failover con Ruta Estática</h2>
+            </div>
+            <div class="card">
+                
+                <div class="accordion-item">
+                    <button class="accordion-header active">
+                        <div class="header-left"><i class="fa-solid fa-route"></i><span>¿Qué es el enrutamiento y por qué lo necesitamos?</span></div>
+                        <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <p class="theory-text">Imagina que un router es un cartero. Si le entregas un paquete para enviarlo a Ica, pero él solo conoce las calles de Lima, no sabrá qué hacer y descartará el paquete. El enrutamiento es el proceso de construirle un "mapa de calles" (Tabla de Enrutamiento) al router.</p>
+                            <ul>
+                                <li><strong>Enrutamiento Estático:</strong> El administrador de red escribe a mano cada ruta hacia cada destino. Seguro, pero pesado si hay muchas redes.</li>
+                                <li><strong>Enrutamiento Dinámico:</strong> Los routers se cuentan chismes. Se dicen entre ellos "Oye, yo conozco la red de Ica, te la paso". Usamos <strong>RIPv2</strong> en este proyecto porque es lo que enseñan los laboratorios, es fácil de usar y propaga solita toda nuestra red.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <button class="accordion-header">
+                        <div class="header-left"><i class="fa-solid fa-arrows-turn-to-dots"></i><span>Paso a Paso: Configurar RIPv2 en los Routers</span></div>
+                        <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <p class="theory-text">Debemos decirle al router qué redes locales conoce para que empiece a propagarlas hacia las demás sedes.</p>
+                            
+                            <div class="code-block">
+                                <span class="comment">! CONFIGURACIÓN RIPV2 (Ejemplo: Router_Lima)</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config)#</span> router rip</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config-router)#</span> version 2</span>
+                                <span class="comment">! CRÍTICO: ¡Desactivar el resumen automático!</span>
+                                <span class="comment">! Sin esto, RIP agrupará tus subredes pequeñitas y DESTRUIRÁ todo tu diseño VLSM</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config-router)#</span> <span class="highlight-cyan">no auto-summary</span></span>
+                                <br>
+                                <span class="comment">! Declarar las redes. ¡Ojo! Tienes que poner la red base (Clase A, B o C), no las subredes de VLSM.</span>
+                                <span class="comment">! Aquí declaras la red que va a tus oficinas:</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config-router)#</span> network <span class="highlight-orange">10.0.0.0</span></span>
+                                <span class="comment">! Aquí declaras los enlaces WAN e interconexión:</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config-router)#</span> network <span class="highlight-orange">172.16.0.0</span></span>
+                                <br>
+                                <span class="comment">! CRÍTICO: Esto hace que el Router_Lima les avise a todos "Si no saben a dónde ir, mándenme todo a mí, yo tengo salida a Internet"</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config-router)#</span> <span class="highlight-cyan">default-information originate</span></span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config-router)#</span> exit</span>
+                            </div>
+
+                            <p class="theory-text">Para comprobar que todo funcionó, ve a Ica y ejecuta <strong><span class="highlight-cyan">show ip route</span></strong>. Si ves líneas que empiezan con una <strong><span class="highlight-orange">R</span></strong>, significa que Ica ya aprendió cómo llegar a Lima, La Libertad, etc. Si ves una <strong><span class="highlight-orange">R*</span></strong>, significa que aprendió la salida al Internet inyectada por el router Lima.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <button class="accordion-header">
+                        <div class="header-left"><i class="fa-solid fa-random"></i><span>Failover: Rutas Estáticas Flotantes (2 ISPs)</span></div>
+                        <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <p class="theory-text">La rúbrica indica que la sede central debe conectarse a Internet a través de dos Proveedores de Servicio (ISP1 e ISP2). El ISP1 será el enlace principal, y si este se cae (falla el cable), la red debe enrutar automáticamente el tráfico por el ISP2 (Respaldo). A esto se le llama <strong>Failover</strong>, y según el <strong>Laboratorio 09b</strong>, se logra con Rutas Estáticas Flotantes.</p>
+                            
+                            <div class="theory-box">
+                                <h4>La Distancia Administrativa (AD)</h4>
+                                <p>Cisco prefiere las rutas con la menor Distancia Administrativa. Una ruta estática normal tiene AD = 1. Si creamos otra ruta estática igual, pero le damos AD = 10, esa ruta se quedará oculta (flotando) y solo aparecerá si la ruta de AD 1 desaparece (se corta el cable).</p>
+                            </div>
+                            
+                            <div class="code-block">
+                                <span class="comment">! CONFIGURACIÓN FAILOVER (En Router Perimetral de Lima)</span>
+                                <span class="comment">! 1. Crear ruta estática principal por defecto hacia ISP1 (AD=1 por defecto)</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config)#</span> ip route 0.0.0.0 0.0.0.0 <span class="highlight-orange">200.1.1.2</span></span>
+                                <br>
+                                <span class="comment">! 2. Crear ruta estática flotante hacia ISP2 (Le asignamos AD=10 al final)</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config)#</span> ip route 0.0.0.0 0.0.0.0 <span class="highlight-orange">201.2.2.2</span> <span class="highlight-cyan">10</span></span>
+                            </div>
+
+                            <p class="theory-text"><strong>Prueba en Packet Tracer:</strong> Haz un ping constante desde una PC a Internet. Ve al Router y apaga (`shutdown`) la interfaz serial que va al ISP1. Verás cómo los pings fallan unos segundos y luego vuelven a responder, ¡porque la red saltó automáticamente al ISP2!</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section id="modulo-6" class="module-section">
+            <div class="module-header">
+                <span class="module-number">06</span>
+                <h2 class="module-title">Servicios de Red (DHCP, DNS, WEB, FTP, Correo)</h2>
+            </div>
+            <div class="card">
+                
+                <div class="accordion-item">
+                    <button class="accordion-header active">
+                        <div class="header-left"><i class="fa-solid fa-laptop-code"></i><span>DHCP: Asignación Automática de IPs</span></div>
+                        <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <p class="theory-text">En vez de ir computadora por computadora colocando la IP estática (aburridísimo y propenso a errores), un servidor DHCP alquila IPs de manera automática.</p>
+                            
+                            <div class="theory-box">
+                                <h4>Paso a Paso en Packet Tracer</h4>
+                                <ol>
+                                    <li>Haz clic en el Servidor y ve a la pestaña <strong>Services > DHCP</strong>.</li>
+                                    <li>Enciende (<strong>Turn ON</strong>) el servicio.</li>
+                                    <li>Crea un "Pool" (grupo de direcciones) para cada VLAN (Ej: Pool_Ventas, Pool_Marketing).</li>
+                                    <li>En <strong>Default Gateway</strong> pon la IP de la SVI de esa VLAN (Ej: 10.192.8.1).</li>
+                                    <li>En <strong>DNS Server</strong> pon la IP de tu servidor DNS principal.</li>
+                                    <li>En <strong>Start IP Address</strong>, no empieces en la .1 porque esa es del gateway. Empieza en la .10 para dejar espacio para IPs estáticas de impresoras o servers.</li>
+                                    <li>Dale a <strong>Add</strong>. Luego ve a cada PC > Desktop > IP Configuration > Selecciona DHCP.</li>
+                                </ol>
+                            </div>
+                            
+                            <div class="alert-box">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                                <div class="alert-box-content">
+                                    <strong>¿El DHCP no funciona (aparece 169.254.x.x APIPA)?</strong>
+                                    <p>Revisa que el Default Gateway que configuraste en el Pool coincida EXACTAMENTE con la IP de la SVI configurada en el Switch Core Multicapa. Revisa también que la PC y el servidor DHCP estén en la misma VLAN o exista un "ip helper-address" configurado.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <button class="accordion-header">
+                        <div class="header-left"><i class="fa-solid fa-magnifying-glass-location"></i><span>DNS: Traducir nombres a IPs</span></div>
+                        <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <p class="theory-text">Los humanos somos malos recordando números (IPs), pero buenos recordando nombres (www.google.com). El servidor <strong>DNS (Domain Name System)</strong> es como un directorio telefónico que traduce el nombre a una IP. Usa el protocolo <strong>UDP puerto 53</strong>.</p>
+                            
+                            <div class="theory-box">
+                                <h4>Paso a Paso en Packet Tracer</h4>
+                                <ol>
+                                    <li>Haz clic en el Servidor DNS > <strong>Services > DNS</strong>. Enciéndelo (<strong>ON</strong>).</li>
+                                    <li>En <strong>Name</strong> escribe el nombre deseado (Ej: <code>www.miempresa.com</code>).</li>
+                                    <li>Asegúrate de que <strong>Type</strong> sea "A Record".</li>
+                                    <li>En <strong>Address</strong> pon la IP del servidor WEB.</li>
+                                    <li>Dale a <strong>Add</strong>. Repite esto para <code>ftp.miempresa.com</code> y <code>mail.miempresa.com</code>.</li>
+                                    <li>Asegúrate de que tus PCs por DHCP reciban la IP de este servidor DNS.</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <button class="accordion-header">
+                        <div class="header-left"><i class="fa-solid fa-globe"></i><span>Servidor WEB (HTTP/HTTPS)</span></div>
+                        <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <p class="theory-text">Aloja la página corporativa que visitan tus sedes. Utiliza <strong>TCP puerto 80 (HTTP)</strong> y <strong>TCP puerto 443 (HTTPS)</strong>.</p>
+                            
+                            <div class="theory-box">
+                                <h4>Paso a Paso en Packet Tracer</h4>
+                                <ol>
+                                    <li>Haz clic en el Servidor WEB > <strong>Services > HTTP</strong>. Enciende ambos, HTTP y HTTPS.</li>
+                                    <li>Haz clic en <strong>edit</strong> en el archivo <code>index.html</code>.</li>
+                                    <li>Cambia el código HTML para que diga "Bienvenidos a la Intranet de MIEMPRESA".</li>
+                                    <li>Para probar, ve a una PC > Desktop > Web Browser y escribe <code>www.miempresa.com</code>.</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <button class="accordion-header">
+                        <div class="header-left"><i class="fa-solid fa-folder-tree"></i><span>Servidor FTP (Transferencia de Archivos)</span></div>
+                        <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <p class="theory-text">Permite subir, bajar y eliminar archivos en un repositorio central. Utiliza los <strong>puertos TCP 20 (para los datos) y 21 (para el control de la conexión)</strong>.</p>
+                            
+                            <div class="theory-box">
+                                <h4>Paso a Paso en Packet Tracer</h4>
+                                <ol>
+                                    <li>Servidor FTP > <strong>Services > FTP</strong>. Enciéndelo.</li>
+                                    <li>Crea un usuario (Ej: <code>adminLima</code>) y contraseña (Ej: <code>cisco123</code>).</li>
+                                    <li>Marca las casillas de permisos según lo que puedan hacer: Read (Lectura), Write (Escritura), Delete (Eliminar), Rename (Renombrar), List (Listar).</li>
+                                    <li>Dale a <strong>Add</strong> (+).</li>
+                                    <li>Para probar, ve a una PC > Command Prompt > escribe <code>ftp ftp.miempresa.com</code>.</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <button class="accordion-header">
+                        <div class="header-left"><i class="fa-solid fa-envelope"></i><span>Servidor de Correo (SMTP/POP3)</span></div>
+                        <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <p class="theory-text">El correo electrónico requiere de dos protocolos para funcionar. <strong>SMTP (TCP puerto 25)</strong> se encarga de ENVIAR el correo desde la PC al servidor. <strong>POP3 (TCP puerto 110)</strong> se encarga de DESCARGAR el correo desde el servidor a tu PC.</p>
+                            
+                            <div class="theory-box">
+                                <h4>Paso a Paso en Packet Tracer</h4>
+                                <ol>
+                                    <li>Servidor de Correo > <strong>Services > EMAIL</strong>. Enciende SMTP y POP3.</li>
+                                    <li>En <strong>Domain Name</strong>, escribe <code>miempresa.com</code> y pulsa <strong>Set</strong>.</li>
+                                    <li>En <strong>User Setup</strong>, crea usuarios (Ej: <code>usuarioLima1</code> y <code>usuarioIca1</code>) con contraseñas y dales a Add (+).</li>
+                                    <li>Ve a una PC > Desktop > Email > Configure Mail. Llena los datos con la info de <code>usuarioLima1@miempresa.com</code> y usa el DNS `mail.miempresa.com` como servidor de entrada y salida.</li>
+                                    <li>Envía un correo de prueba a <code>usuarioIca1@miempresa.com</code>.</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section id="modulo-7" class="module-section">
+            <div class="module-header">
+                <span class="module-number">07</span>
+                <h2 class="module-title">Políticas de Seguridad (ACLs) y Acceso SSH</h2>
+            </div>
+            <div class="card">
+                
+                <div class="accordion-item">
+                    <button class="accordion-header active">
+                        <div class="header-left"><i class="fa-solid fa-shield-halved"></i><span>¿Qué es una ACL? (Explicación para principiantes)</span></div>
+                        <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <p class="theory-text">Una <strong>Lista de Control de Acceso (ACL)</strong> es como el guardia de seguridad VIP de una discoteca. Se planta en la puerta de un puerto del router, revisa cada paquete que intenta entrar o salir, mira su lista de reglas, y decide si lo deja pasar (<strong>permit</strong>) o lo descarta (<strong>deny</strong>).</p>
+                            <p class="theory-text">El guardia lee la lista en estricto <strong>orden</strong>, de arriba a abajo. En cuanto encuentra una regla que coincide con el paquete, actúa y deja de leer el resto. Al final de TODA lista existe una regla invisible llamada <strong>"Deny Any" (Denegar Todo)</strong>. Si un paquete no coincide con ninguna regla permitida... ¡pam! El guardia lo rechaza y lo bota.</p>
+                            
+                            <table class="data-table">
+                                <tr>
+                                    <th>Tipo de ACL</th>
+                                    <th>Número</th>
+                                    <th>¿Qué pueden revisar?</th>
+                                </tr>
+                                <tr>
+                                    <td><strong>Estándar</strong></td>
+                                    <td>1 al 99</td>
+                                    <td>Son básicas. Solo revisan de DÓNDE viene el paquete (IP Origen).</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Extendida</strong></td>
+                                    <td>100 al 199</td>
+                                    <td>Son expertas. Revisan Origen, Destino, Protocolo (TCP/UDP) y el PUERTO. Son las que pide la rúbrica.</td>
+                                </tr>
+                            </table>
+
+                            <div class="alert-box info">
+                                <i class="fa-solid fa-mask"></i>
+                                <div class="alert-box-content">
+                                    <strong>La Máscara Wildcard (El gemelo malvado)</strong>
+                                    <p>Las ACLs no usan la máscara de subred (ej. 255.255.255.0), usan una máscara Wildcard, que es exactamente la inversa. Un 0 significa "el número debe coincidir exactamente", un 255 significa "no me importa, deja pasar lo que sea". Ejemplo: <code>0.0.0.255</code> equivale a toda una red /24. Para un host específico (una PC), se usa <code>0.0.0.0</code> o la palabra <code>host</code>.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <button class="accordion-header">
+                        <div class="header-left"><i class="fa-solid fa-list-check"></i><span>Las 5 Políticas de Seguridad del Proyecto</span></div>
+                        <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <p class="theory-text">La rúbrica es clara, y el <strong>Laboratorio 13</strong> nos enseña a aplicarlo. Vamos a crear una gran <strong>ACL Extendida Nombrada</strong> en el Switch Core Multicapa de Lima.</p>
+
+                            <div class="theory-box">
+                                <h4>La Lógica de nuestras Políticas:</h4>
+                                <ol>
+                                    <li><strong>FTP Restringido:</strong> Solo se llega al servidor FTP (IP 10.81.43.38 en tu caso) por el puerto TCP 21.</li>
+                                    <li><strong>Tráfico Web:</strong> Permitir tráfico de páginas web (TCP 80 HTTP y TCP 443 HTTPS).</li>
+                                    <li><strong>DHCP Controlado:</strong> Permitir tráfico de DHCP (UDP 67 al servidor, UDP 68 al cliente).</li>
+                                    <li><strong>Correo Exclusivo:</strong> Permitir acceso al servidor de Correo (IP 10.81.43.37) usando puertos SMTP (TCP 25) y POP3 (TCP 110).</li>
+                                    <li><strong>SSH Exclusivo (VLAN Gestión):</strong> Bloquearemos cualquier intento de acceder a administrar los equipos, EXCEPTO a la PC-Admin de Gestión (esto lo haremos con una ACL especial abajo).</li>
+                                </ol>
+                            </div>
+
+                            <div class="code-block">
+                                <span class="comment">! CREACIÓN DE LA LISTA EXTENDIDA EN EL CORE L3</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config)#</span> ip access-list extended <span class="highlight-cyan">POLITICAS_LIMA</span></span>
+                                <br>
+                                <span class="comment">! 1. Aplicamos Política FTP (Puerto 21)</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-ext-nacl)#</span> permit tcp any host 10.81.43.38 eq <span class="highlight-orange">21</span></span>
+                                <br>
+                                <span class="comment">! 2. Aplicamos Política Web (Puertos 80 y 443)</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-ext-nacl)#</span> permit tcp any any eq <span class="highlight-orange">80</span></span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-ext-nacl)#</span> permit tcp any any eq <span class="highlight-orange">443</span></span>
+                                <br>
+                                <span class="comment">! 3. Aplicamos Política DHCP (Puertos 67 y 68)</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-ext-nacl)#</span> permit udp any any eq <span class="highlight-orange">67</span></span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-ext-nacl)#</span> permit udp any any eq <span class="highlight-orange">68</span></span>
+                                <br>
+                                <span class="comment">! 4. Aplicamos Política Mail (Puertos 25 y 110)</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-ext-nacl)#</span> permit tcp any host 10.81.43.37 eq <span class="highlight-orange">25</span></span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-ext-nacl)#</span> permit tcp any host 10.81.43.37 eq <span class="highlight-orange">110</span></span>
+                                <br>
+                                <span class="comment">! CRÍTICO: Permitir PING (ICMP) y lo que consideres general, o te quedarás sin conexión</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-ext-nacl)#</span> permit ip any any</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-ext-nacl)#</span> exit</span>
+                                <br>
+                                <span class="comment">! FINALMENTE: ¡Tienes que asignar el Guardia (ACL) a una puerta (Interfaz)!</span>
+                                <span class="comment">! Lo aplicamos a la SVI de Servidores por ejemplo:</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config)#</span> interface vlan 80</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-if)#</span> ip access-group <span class="highlight-cyan">POLITICAS_LIMA</span> out</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <button class="accordion-header">
+                        <div class="header-left"><i class="fa-solid fa-user-secret"></i><span>Configurar SSH (Acceso Remoto Seguro)</span></div>
+                        <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <p class="theory-text">Históricamente, los ingenieros se conectaban por Telnet. Pero Telnet no encripta la comunicación, envía las contraseñas al desnudo. Por eso habilitamos <strong>SSH (Secure Shell)</strong>. Encripta TODO. Y para completar la Política 5, aplicaremos una restricción para que solo la IP de la PC-Admin pueda usar SSH.</p>
+                            
+                            <div class="code-block">
+                                <span class="comment">! PASO A PASO: Habilitar SSH Seguro en Equipos (Ej: CORE_LIMA)</span>
+                                <span class="comment">! 1. Definir un dominio (Requisito para generar las llaves)</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config)#</span> ip domain-name miempresa.com</span>
+                                <span class="comment">! 2. Generar las llaves de encriptación RSA (Usa mínimo 1024 bits)</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config)#</span> crypto key generate rsa</span>
+                                <span class="comment">! 3. Crear el usuario que vas a usar para loguearte</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config)#</span> username admin secret cisco123</span>
+                                <span class="comment">! 4. Forzar SSH y apagar Telnet en las líneas virtuales</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config)#</span> line vty 0 4</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-line)#</span> transport input <span class="highlight-cyan">ssh</span></span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-line)#</span> login local</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-line)#</span> exit</span>
+                                <br>
+                                <span class="comment">! LA POLÍTICA 5: Bloquear SSH excepto para la PC-Admin (IP: 10.192.11.194)</span>
+                                <span class="comment">! Creamos una pequeña ACL estándar</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config)#</span> ip access-list standard <span class="highlight-cyan">ADMIN_SOLO</span></span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-std-nacl)#</span> permit host 10.192.11.194</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-std-nacl)#</span> deny any</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-std-nacl)#</span> exit</span>
+                                <span class="comment">! Y se la enchufamos a la línea VTY usando 'access-class'</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config)#</span> line vty 0 4</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-line)#</span> access-class <span class="highlight-cyan">ADMIN_SOLO</span> in</span>
+                            </div>
+
+                            <div class="theory-box">
+                                <h4>Para probar el acceso SSH:</h4>
+                                <p>Ve a tu PC-Admin > Command Prompt y ejecuta: <strong><span class="highlight-cyan">ssh -l admin [IP del Core]</span></strong>. (Cuidado, es una "L" minúscula, no un uno, que significa "login"). Prueba desde otra PC de Ventas y mira cómo el router te patea la conexión (Connection Refused).</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section id="modulo-8" class="module-section">
+            <div class="module-header">
+                <span class="module-number">08</span>
+                <h2 class="module-title">Redes Inalámbricas (WLAN)</h2>
+            </div>
+            <div class="card">
+                <div class="accordion-item">
+                    <button class="accordion-header active">
+                        <div class="header-left"><i class="fa-solid fa-wifi"></i><span>¿Cómo funciona WiFi en Packet Tracer?</span></div>
+                        <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <p class="theory-text">Según tu <strong>Laboratorio 06</strong>, hay una diferencia GIGANTE entre un <em>Access Point (AP)</em> y un <em>Wireless Router</em>.</p>
+                            <ul>
+                                <li><strong>Access Point:</strong> Es simplemente un puente, un switch invisible. Trabaja en Capa 2. Convierte el cable en ondas de radio. No hace DHCP, ni enrutamiento. Simplemente extiende la red por el aire.</li>
+                                <li><strong>Wireless Router:</strong> Trabaja en Capa 3. Tiene su propio DHCP interno y realiza NAT. Crea una subred totalmente independiente (como los routers de tu casa).</li>
+                            </ul>
+                            <p class="theory-text">Para el proyecto empresarial, conectaremos <strong>Access Points</strong> a nuestros Switches. ¡Ojo! En Packet Tracer, las Laptops por defecto vienen con puerto Ethernet de cable. Tienes que apagar la laptop, quitarle el puerto Ethernet, y arrastrar el módulo inalámbrico (WPC300N) para que agarre Wi-Fi.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <button class="accordion-header">
+                        <div class="header-left"><i class="fa-solid fa-signal"></i><span>Paso a Paso: Configurar el Access Point</span></div>
+                        <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <p class="theory-text">La rúbrica indica que debe haber una red para Clientes y otra para Ejecutivos, lo que significa poner dos APs o un AP con dos redes, separadas en distintas VLANs.</p>
+                            
+                            <div class="theory-box">
+                                <h4>Paso a Paso en Packet Tracer</h4>
+                                <ol>
+                                    <li>Coloca el Access Point (AP-PT) y conéctalo con un cable directo al switch de la Sede.</li>
+                                    <li>Asegúrate de que el puerto del Switch que conecta al AP esté configurado como <strong>Modo Acceso</strong> en la VLAN de Wi-Fi.</li>
+                                    <li>Haz clic en el AP > Pestaña <strong>Config</strong> > Izquierda: <strong>Port 1</strong>.</li>
+                                    <li>En <strong>SSID</strong>, borra "Default" y escribe el nombre de la red (Ej: <code>WiFi_MIEMPRESA_Ejecutivos</code>).</li>
+                                    <li>En Authentication, selecciona <strong>WPA2-PSK</strong> (el estándar de seguridad seguro y moderno).</li>
+                                    <li>En PSK Pass Phrase, coloca una contraseña fuerte (Ej: <code>cisco123456</code>).</li>
+                                    <li>Abre tu Laptop Inalámbrica > Desktop > PC Wireless > Pestaña Connect. Espera que aparezca la señal, conéctate y pon la contraseña. ¡Y espera a que tu DHCP server le asigne una IP automáticamente!</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="modulo-9" class="module-section">
+            <div class="module-header">
+                <span class="module-number">09</span>
+                <h2 class="module-title">Solución Cloud y Backups (AWS)</h2>
+            </div>
+            <div class="card">
+                <div class="accordion-item">
+                    <button class="accordion-header active">
+                        <div class="header-left"><i class="fa-solid fa-cloud"></i><span>Propuesta de Migración a la Nube</span></div>
+                        <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <p class="theory-text">El hito final del proyecto requiere justificar una migración hacia Cloud Computing (La Nube) para reemplazar o mejorar los servicios "On-Premise" (servidores físicos en la oficina) de MIEMPRESA. Elegimos <strong>Amazon Web Services (AWS)</strong> basándonos en tu trabajo de referencia.</p>
+                            
+                            <table class="data-table">
+                                <tr>
+                                    <th>Si en la oficina tienes...</th>
+                                    <th>En la nube de AWS alquilas...</th>
+                                </tr>
+                                <tr>
+                                    <td>Discos duros y cintas para Backups</td>
+                                    <td><strong>Amazon S3 (Simple Storage Service)</strong>. Es seguro, ilimitado y puedes automatizar copias diarias hacia Amazon Glacier (archivo de bajo costo).</td>
+                                </tr>
+                                <tr>
+                                    <td>Servidor Físico WEB y FTP</td>
+                                    <td><strong>Amazon EC2</strong>. Servidores virtuales donde pagas solo por los minutos que la máquina está encendida.</td>
+                                </tr>
+                                <tr>
+                                    <td>Router y Firewall Perimetral</td>
+                                    <td><strong>AWS VPC, Route Tables y AWS WAF</strong>. Cortafuegos virtuales y grupos de seguridad súper granulados para tu red.</td>
+                                </tr>
+                            </table>
+
+                            <div class="theory-box">
+                                <h4>El argumento estrella para la sustentación (CAPEX vs OPEX):</h4>
+                                <p>En lugar de comprar fierros carísimos de una vez que en 5 años serán obsoletos (<strong>CAPEX</strong> - Gasto de Capital), la empresa migra a un modelo de pago-por-uso mensual (<strong>OPEX</strong> - Gasto Operativo) en AWS, obteniendo una durabilidad inalcanzable localmente (99.999999999% en Amazon S3) y olvidándose de pagar el recibo de luz y aire acondicionado para los servidores.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
