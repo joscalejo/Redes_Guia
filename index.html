@@ -135,14 +135,14 @@
 
         /* Global Alert */
         .global-alert {
-            background: linear-gradient(145deg, rgba(249, 115, 22, 0.1), rgba(30, 41, 59, 0.8));
-            border: 1px solid var(--accent-orange);
+            background: linear-gradient(145deg, rgba(6, 182, 212, 0.1), rgba(30, 41, 59, 0.8));
+            border: 1px solid var(--accent-cyan);
             border-radius: 16px;
             padding: 2rem;
             display: flex;
             gap: 1.5rem;
             margin-bottom: 4rem;
-            box-shadow: 0 0 20px var(--accent-orange-glow);
+            box-shadow: 0 0 20px var(--accent-cyan-glow);
             position: relative;
             overflow: hidden;
             align-items: center;
@@ -151,12 +151,12 @@
             content: '';
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            box-shadow: inset 0 0 10px rgba(249, 115, 22, 0.2);
+            box-shadow: inset 0 0 10px rgba(6, 182, 212, 0.2);
             pointer-events: none;
         }
         .global-alert-icon {
             font-size: 3rem;
-            color: var(--accent-orange);
+            color: var(--accent-cyan);
             flex-shrink: 0;
             animation: pulse-icon 2s infinite;
         }
@@ -166,7 +166,7 @@
             100% { transform: scale(1); opacity: 0.8; }
         }
         .global-alert-content h2 {
-            color: var(--accent-orange);
+            color: var(--accent-cyan);
             font-size: 1.4rem;
             margin-bottom: 0.5rem;
             font-weight: 800;
@@ -176,7 +176,7 @@
         .global-alert-content p { font-size: 1.05rem; margin: 0; }
         .global-alert-content strong {
             color: #fff;
-            background-color: rgba(249, 115, 22, 0.2);
+            background-color: rgba(6, 182, 212, 0.2);
             padding: 0.1rem 0.4rem;
             border-radius: 4px;
         }
@@ -372,7 +372,7 @@
             color: var(--text-secondary);
             font-size: 1rem;
             margin: 0;
-            margin-bottom: 0.5rem; /* Fix visual spacing */
+            margin-bottom: 0.5rem;
         }
         .alert-box-content p:last-child {
             margin-bottom: 0;
@@ -403,7 +403,7 @@
             <h1>Roadmap TF<br><span class="highlight">Redes Cisco</span></h1>
         </div>
         <ul class="sidebar-nav">
-            <li><a href="#modulo-0" class="nav-link active"><i class="fa-solid fa-sitemap"></i> 1. Cheatsheet</a></li>
+            <li><a href="#modulo-0" class="nav-link active"><i class="fa-solid fa-stethoscope"></i> 0. Cheatsheet CLI</a></li>
             <li><a href="#modulo-1" class="nav-link"><i class="fa-solid fa-sitemap"></i> 1. IP y VLSM</a></li>
             <li><a href="#modulo-2" class="nav-link"><i class="fa-solid fa-layer-group"></i> 2. VLANs y Troncales</a></li>
             <li><a href="#modulo-3" class="nav-link"><i class="fa-solid fa-microchip"></i> 3. Inter-VLAN (Core)</a></li>
@@ -424,64 +424,56 @@
     <main class="main-content">
 
         <div class="global-alert">
-            <i class="fa-solid fa-triangle-exclamation global-alert-icon"></i>
+            <i class="fa-solid fa-circle-check global-alert-icon"></i>
             <div class="global-alert-content">
-                <h2>"La Regla de la X" - ¡Importante!</h2>
-                <p>La dirección de red base de la multinacional es <strong>10.19X.0.0/16</strong>. La "X" debe ser reemplazada obligatoriamente por el <strong>número de tu grupo</strong>. ¡Si olvidas esto, habrá duplicidad de IPs y tu red colapsará al integrarse al final del semestre!</p>
+                <h2>Variables del Proyecto Asignadas</h2>
+                <p>Nuestra multinacional opera bajo la red base <strong>10.192.0.0/16</strong> (Correspondiente a la asignación de grupo). Todos los comandos, IPs y máscaras a lo largo de esta guía están configurados con <strong>nuestro subnetting real</strong> para que el código sea directamente aplicable a Packet Tracer.</p>
             </div>
         </div>
+
         <section id="modulo-0" class="module-section">
             <div class="module-header">
                 <span class="module-number">00</span>
                 <h2 class="module-title">Troubleshooting y Cheatsheet CLI</h2>
             </div>
             <div class="card">
-                
                 <div class="accordion-item">
                     <button class="accordion-header active">
-                        <div class="header-left"><i class="fa-solid fa-stethoscope"></i><span>Diagnóstico de Red (Comandos Show)</span></div>
+                        <div class="header-left"><i class="fa-solid fa-stethoscope"></i><span>Diagnóstico de Red (Comandos de Prueba)</span></div>
                         <i class="fa-solid fa-chevron-down accordion-icon"></i>
                     </button>
                     <div class="accordion-content">
                         <div class="accordion-inner">
-                            <p class="theory-text">Si algo falla en Packet Tracer, <strong>no borres todo</strong>. Utiliza estos comandos en el modo privilegiado (<code>#</code>) para diagnosticar dónde está el error.</p>
-                            
+                            <p class="theory-text">Aplica el proceso de solución de problemas en capas: comprueba primero los enlaces físicos, luego el direccionamiento, y finalmente el enrutamiento.</p>
                             <table class="data-table">
                                 <tr>
                                     <th>Comando Completo</th>
                                     <th>Desglose de Parámetros (Flags) y Función Principal</th>
                                 </tr>
                                 <tr>
+                                    <td><strong><span class="highlight-cyan">ping</span></strong> [ip-destino]</td>
+                                    <td>
+                                        <strong>Prueba de conectividad básica (ICMP).</strong> Si recibes <code>!</code>, la comunicación es exitosa. Si recibes <code>.</code> (puntos), el paquete se perdió.
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong><span class="highlight-cyan">tracert</span></strong> [ip-destino]<br><em>(En PC Windows)</em><br><strong><span class="highlight-cyan">traceroute</span></strong> [ip-destino]<br><em>(En Router/Switch)</em></td>
+                                    <td>
+                                        <strong>Rastreo salto por salto.</strong> Muestra cada router por el que pasa el paquete. Es vital para encontrar el punto exacto donde se rompe la red.
+                                    </td>
+                                </tr>
+                                <tr>
                                     <td><strong><span class="highlight-cyan">show ip interface brief</span></strong></td>
                                     <td>
-                                        <strong>Muestra un resumen vital del estado de todos los puertos.</strong><br>
-                                        • <code>show</code>: Ordena mostrar datos en pantalla.<br>
-                                        • <code>ip</code>: Filtra la información para mostrar solo configuraciones de Capa 3 (IPv4).<br>
-                                        • <code>interface</code>: Apunta al hardware (los puertos).<br>
-                                        • <code>brief</code>: Parámetro clave. Resume el output en una tabla limpia (IP asignada, estado físico UP/DOWN, y estado de protocolo).
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><strong><span class="highlight-cyan">show vlan brief</span></strong></td>
-                                    <td>
-                                        <strong>Verifica si creaste y asignaste bien las VLANs en Capa 2.</strong><br>
-                                        • <code>vlan</code>: Apunta al archivo interno de la base de datos de VLANs (vlan.dat).<br>
-                                        • <code>brief</code>: Filtra la salida para mostrar solo el ID de la VLAN, su nombre y qué puertos exactos de acceso pertenecen a ella.
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><strong><span class="highlight-cyan">show interfaces trunk</span></strong></td>
-                                    <td>
-                                        <strong>Audita las conexiones entre switches (Enlaces Troncales).</strong><br>
-                                        • <code>interfaces</code>: Apunta a los puertos del equipo.<br>
-                                        • <code>trunk</code>: Actúa como filtro absoluto. Solo te mostrará los puertos que lograron negociar con éxito el modo troncal y te indicará si todas las VLANs están permitidas para cruzar por ahí.
+                                        <strong>Resumen del estado de todos los puertos.</strong><br>
+                                        • <code>ip</code>: Filtra solo configuraciones IPv4.<br>
+                                        • <code>brief</code>: Resume el output en una tabla limpia (IP, estado físico UP/DOWN).
                                     </td>
                                 </tr>
                                 <tr>
                                     <td><strong><span class="highlight-cyan">show ip route</span></strong></td>
                                     <td>
-                                        <strong>Muestra el "GPS" del Router o Switch Multicapa.</strong><br>
-                                        • <code>route</code>: Extrae la tabla de enrutamiento interna. Es vital para comprobar si RIPv2 aprendió las rutas de las otras sedes (marcadas con una "R") o si tus rutas estáticas (marcadas con "S") están activas.
+                                        <strong>Muestra el "GPS" del Router.</strong> Comprueba si aprendió rutas dinámicas ("R" de RIP) o estáticas ("S").
                                     </td>
                                 </tr>
                             </table>
@@ -500,10 +492,9 @@
                                 <i class="fa-solid fa-lightbulb"></i>
                                 <div class="alert-box-content">
                                     <strong>¿Para qué sirve el flag "do"?</strong>
-                                    <p>Normalmente, si estás configurando una IP dentro de una interfaz <code>(config-if)#</code> y quieres hacer un ping o usar un comando <code>show</code>, el sistema te dará error porque esos comandos pertenecen al modo privilegiado <code>#</code>. El parámetro <strong><span class="highlight-orange">do</span></strong> fuerza al sistema operativo a ejecutar comandos de visualización o guardado sin tener que salirte del modo de configuración.</p>
+                                    <p>El parámetro <strong><span class="highlight-orange">do</span></strong> fuerza al sistema a ejecutar comandos de visualización (show) o guardado sin tener que salirte del modo de configuración <code>(config)#</code> o <code>(config-if)#</code>.</p>
                                 </div>
                             </div>
-
                             <table class="data-table">
                                 <tr>
                                     <th>Comando</th>
@@ -511,63 +502,112 @@
                                 </tr>
                                 <tr>
                                     <td><strong><span class="highlight-cyan">show running-config</span></strong><br><em>(Atajo: sh run)</em></td>
-                                    <td>
-                                        Muestra línea por línea toda la configuración que el equipo tiene actualmente en la memoria RAM. Si se apaga el equipo, esta configuración se pierde. Ideal para ver si te equivocaste en una IP o en una política de ACL.
-                                    </td>
+                                    <td>Muestra la configuración en la memoria RAM. Ideal para auditar errores en IPs o ACLs.</td>
                                 </tr>
                                 <tr>
-                                    <td><strong><span class="highlight-cyan">copy running-config startup-config</span></strong></td>
-                                    <td>
-                                        El comando oficial para guardar. Copia todo lo que está en la RAM (running) y lo inyecta en la NVRAM (startup). Así, si Packet Tracer crashea o apagas el rack, tu configuración sobrevive.
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><strong><span class="highlight-orange">do</span> <span class="highlight-cyan">write</span></strong><br><em>(Atajo popular: do wr)</em></td>
-                                    <td>
-                                        Hace exactamente lo mismo que el comando anterior (guarda en la NVRAM), pero es mucho más rápido de teclear. Al incluir el flag <code>do</code>, puedes guardar tu progreso en cualquier momento, incluso si estás a mitad de configurar una VLAN o una política de seguridad.
-                                    </td>
+                                    <td><strong><span class="highlight-orange">do</span> <span class="highlight-cyan">write</span></strong><br><em>(Atajo: do wr)</em></td>
+                                    <td>Guarda el progreso en la NVRAM para que sobreviva a un apagón. Ejecutable desde cualquier sub-modo.</td>
                                 </tr>
                             </table>
                         </div>
                     </div>
                 </div>
-
             </div>
         </section>
 
         <section id="modulo-1" class="module-section">
             <div class="module-header">
                 <span class="module-number">01</span>
-                <h2 class="module-title">Diseño Lógico IP y VLSM</h2>
+                <h2 class="module-title">Diseño Lógico IP y VLSM (Base del Proyecto)</h2>
             </div>
             <div class="card">
+                
                 <div class="accordion-item">
                     <button class="accordion-header active">
-                        <div class="header-left"><i class="fa-solid fa-calculator"></i><span>Teoría VLSM y Cálculo Matemático (25%)</span></div>
+                        <div class="header-left"><i class="fa-solid fa-server"></i><span>¡ALERTA! El Cálculo de la VLAN de Gestión</span></div>
                         <i class="fa-solid fa-chevron-down accordion-icon"></i>
                     </button>
                     <div class="accordion-content">
                         <div class="accordion-inner">
                             <div class="theory-box">
-                                <h4>Fundamento Teórico</h4>
-                                <p>Las redes "Classful" usan máscaras fijas, desperdiciando miles de IPs. <strong>VLSM (Variable Length Subnet Mask)</strong> permite "hacer subredes de una subred", asignando máscaras variables según la necesidad exacta de cada departamento, maximizando la eficiencia.</p>
+                                <h4>Antes de hacer tu VLSM: ¿Cuántos hosts necesita Gestión?</h4>
+                                <p>Muchos grupos llegan al Módulo 7 (Seguridad SSH) y se dan cuenta de que no les alcanzan las IPs para administrar sus equipos, teniendo que rehacer todo su Excel. La VLAN de Gestión (VLAN 99 para este ejemplo) <strong>NO es un número al azar.</strong></p>
+                                <p>Debes asignar <strong>1 IP a CADA equipo de red de tu sucursal</strong> para poder controlarlo a distancia. Por lo tanto, el cálculo de hosts actuales de tu VLAN 99 será igual a la suma de:</p>
+                                <p><strong>(Cantidad de Routers(En este caso 1 porque solo hay 1 router por sucursal)) + (Switches L3 de Distribución y el Core) + (Switches L2 de Acceso)</strong></p>
                             </div>
-                            <p class="theory-text">Según la rúbrica, no puedes dimensionar la red con los hosts actuales. <strong>Debes aplicar un aumento proporcional del 25% a cada VLAN.</strong></p>
                             <div class="alert-box info">
-                                <i class="fa-solid fa-square-root-variable"></i>
+                                <i class="fa-solid fa-calculator"></i>
                                 <div class="alert-box-content">
-                                    <strong>Ejemplo Matemático Exacto (Sede Lima):</strong>
-                                    <p><strong>Administración:</strong> Tienes 100 hosts actuales. Le calculas el aumento del 25% (100 * 1.25) y tienes que dimensionar para<strong>125 hosts</strong>. Necesitarás una subred <strong>/25</strong> (126 direcciones útiles)</p>
-                                    <p><strong>Logística:</strong> Tienes 25 hosts actuales. Con el aumento serían 31.25. Como no puede haber decimales de host, <strong>siempre se redondea hacia arriba</strong>, por lo que te quedarías con <strong>32 hosts</strong>. Necesitarás una subred <strong>/26</strong> (62 útiles).</p>
-                                    <p style="margin-top: 10px; font-size: 0.9rem; color: var(--text-secondary);"><em>* Aplica este mismo cálculo y redondeo hacia arriba para absolutamente todos los demás departamentos de la topología.</em></p>
+                                    <strong>Ejemplo Práctico:</strong>
+                                    <p>Si tu sucursal tiene 1 Router, 1 Switch Core L3, 3 Switches de Distribución L3 y 5 Switches de Acceso L2, entonces tienes <strong>10 equipos de red</strong>.</p>
+                                    <p>Tus Hosts Actuales = 10. Le sumas el 25% de crecimiento según la rúbrica (10 * 1.25) = <strong>12.5 (Redondeado a 13 Hosts Proyectados).</strong> Necesitarás buscar en el VLSM una subred <strong>/28</strong> (14 útiles) o un <strong>/27</strong> (30 útiles).</p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
                 <div class="accordion-item">
                     <button class="accordion-header">
-                        <div class="header-left"><i class="fa-solid fa-circle-exclamation"></i><span>Regla de Oro para WAN (Routers 2911)</span></div>
+                        <div class="header-left"><i class="fa-solid fa-table"></i><span>Nuestro Subnetting (Tabla de Referencia)</span></div>
+                        <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <p class="theory-text">Para tener más claras las cosas a lo largo de esta guía, utilizaremos un subnetting de ejemplo basado <strong>exactamente en nuestros archivos de cálculo</strong>. Todos los comandos de esta página utilizarán las IPs de esta tabla para que sea más fácil extrapolarlos al trabajo de Packet Tracer.</p>
+                            
+                            <table class="data-table">
+                                <tr>
+                                    <th>Sede Principal: LIMA (10.192.8.0/22)</th>
+                                    <th>VLAN / Uso</th>
+                                    <th>Dirección de Red</th>
+                                    <th>IP de Gateway (Primera IP)</th>
+                                    <th>Máscara de Subred</th>
+                                </tr>
+                                <tr>
+                                    <td><strong>Ventas</strong></td>
+                                    <td>VLAN 10</td>
+                                    <td>10.192.8.0 /24</td>
+                                    <td><strong><span class="highlight-cyan">10.192.8.1</span></strong></td>
+                                    <td>255.255.255.0</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Administración</strong></td>
+                                    <td>VLAN 20</td>
+                                    <td>10.192.9.0 /25</td>
+                                    <td><strong><span class="highlight-cyan">10.192.9.1</span></strong></td>
+                                    <td>255.255.255.128</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Finanzas</strong></td>
+                                    <td>VLAN 30</td>
+                                    <td>10.192.9.128 /26</td>
+                                    <td><strong><span class="highlight-cyan">10.192.9.129</span></strong></td>
+                                    <td>255.255.255.192</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Nativa-Gestion (SSH)</strong></td>
+                                    <td>VLAN 99</td>
+                                    <td>10.192.11.192 /27</td>
+                                    <td><strong><span class="highlight-cyan">10.192.11.193</span></strong></td>
+                                    <td>255.255.255.224</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Nativa (Tráfico sin etiquetar)</strong></td>
+                                    <td>VLAN 999</td>
+                                    <td><em>No requiere IP (Solo capa 2)</em></td>
+                                    <td><strong><span class="highlight-orange">N/A</span></strong></td>
+                                    <td>N/A</td>
+                                </tr>
+                            </table>
+                            <p style="margin-top: 15px; font-size: 0.9rem; color: var(--text-secondary);"><em>* Nota: Sigue la misma lógica extrayendo los datos de tus archivos CSV para las VLANs de Ica (10.192.12.0/24), La Libertad (10.192.13.0/24), Puno (10.192.14.0/24) y Huánuco (10.192.15.0/24).</em></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <button class="accordion-header">
+                        <div class="header-left"><i class="fa-solid fa-circle-exclamation"></i><span>Regla de Oro para Enlaces Punto a Punto</span></div>
                         <i class="fa-solid fa-chevron-down accordion-icon"></i>
                     </button>
                     <div class="accordion-content">
@@ -575,8 +615,8 @@
                             <div class="alert-box">
                                 <i class="fa-solid fa-triangle-exclamation"></i>
                                 <div class="alert-box-content">
-                                    <strong>No desperdicies IPs en Enlaces Seriales</strong>
-                                    <p>Para los enlaces WAN (Conexiones Punto a Punto entre los Routers <strong>Cisco 2911</strong> de cada sede), debes usar SIEMPRE subredes <strong>/30</strong>. Una máscara /30 solo provee 2 direcciones útiles, exactamente las que necesitas para conectar las interfaces seriales de dos routers. Si usas /24 o FLSM, perderás puntos de eficiencia.</p>
+                                    <strong>No desperdicies IPs en Enlaces de Tránsito o WAN</strong>
+                                    <p>Tanto para las conexiones WAN (Router a Router) como para las interconexiones internas entre tus switches L3, debes usar SIEMPRE subredes <strong>/30 (Máscara 255.255.255.252)</strong>. Una máscara /30 provee solo 2 direcciones útiles. Para estos ejemplos, usaremos el bloque <strong>172.16.0.0/30</strong> como nuestras IPs de tránsito.</p>
                                 </div>
                             </div>
                         </div>
@@ -591,64 +631,68 @@
                 <h2 class="module-title">Capa 2 - VLANs y Troncales (Cisco 2950-24)</h2>
             </div>
             <div class="card">
+                
                 <div class="accordion-item">
                     <button class="accordion-header active">
-                        <div class="header-left"><i class="fa-solid fa-list-check"></i><span>1. Crear la Tabla de VLANs en Switches de Acceso</span></div>
+                        <div class="header-left"><i class="fa-solid fa-shield-halved"></i><span>Seguridad: VLAN Nativa vs Gestión</span></div>
                         <i class="fa-solid fa-chevron-down accordion-icon"></i>
                     </button>
                     <div class="accordion-content">
                         <div class="accordion-inner">
-                            <p class="theory-text">Debes crear esta base de datos en <strong>todos los switches Cisco 2950-24</strong> para que el tráfico originado por las PCs endpoints esté correctamente etiquetado.</p>
-                            <div class="code-block">
-                                <span class="comment">! Entrar al modo de configuración global y crear las VLANs secuencialmente:</span>
-                                <span class="code-line"><span class="cli-prompt">Switch></span> enable</span>
-                                <span class="code-line"><span class="cli-prompt">Switch#</span> configure terminal</span>
-                                <span class="code-line"><span class="cli-prompt">Switch(config)#</span> vlan 10</span>
-                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> name AdministracionVLAN10</span>
-                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> vlan 20</span>
-                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> name LogisticaVLAN20</span>
-                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> vlan 30</span>
-                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> name VentasVLAN30</span>
-                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> vlan 40</span>
-                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> name FinanzasVLAN40</span>
-                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> vlan 50</span>
-                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> name MarketingVLAN50</span>
-                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> vlan 60</span>
-                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> name Wifi-ClientesVLAN60</span>
-                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> vlan 70</span>
-                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> name Wifi-EjecutivosVLAN70</span>
-                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> vlan 80</span>
-                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> name ServidoresVLAN80</span>
-                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> vlan 90</span>
-                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> name Nativa-GestionVLAN90</span>
-                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> exit</span>
-                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> do wr</span>
-                                <span class="comment">! Recueda Utilizar do wr para guardar los cambios</span>
+                            <div class="theory-box">
+                                <h4>La regla de oro contra ataques (VLAN Hopping)</h4>
+                                <p>Por defecto, Cisco usa la VLAN 1 tanto para administrar el switch como para el tráfico "Nativo" (sin etiquetar). Esto es extremadamente inseguro. Por ello, aplicamos la regla de separación:</p>
+                                <p>• <strong>VLAN 99 (Nativa-Gestion):</strong> Aquí conectaremos la PC del administrador de red y le pondremos una IP al switch para poder acceder a él de forma remota y segura mediante SSH.</p>
+                                <p>• <strong>VLAN 999 (Nativa real):</strong> Se usará exclusivamente en los cables troncales para atrapar cualquier tráfico basura o malicioso que viaje sin etiquetar y enviarlo a un "agujero negro", ya que esta VLAN no tendrá dirección IP.</p>
                             </div>
                         </div>
                     </div>
                 </div>
+
                 <div class="accordion-item">
                     <button class="accordion-header">
-                        <div class="header-left"><i class="fa-solid fa-terminal"></i><span>2. Asignar Puertos de Acceso y Troncales</span></div>
+                        <div class="header-left"><i class="fa-solid fa-list-check"></i><span>Crear Base de Datos y Asignar Puertos</span></div>
                         <i class="fa-solid fa-chevron-down accordion-icon"></i>
                     </button>
                     <div class="accordion-content">
                         <div class="accordion-inner">
                             <div class="code-block">
-                                <span class="comment">! ASIGNAR PUERTO DE ACCESO (Hacia una PC EndPoint)</span>
-                                <span class="comment">! Ejemplo: Asignar el puerto FastEthernet 0/2 a la VLAN 30 de Ventas</span>
+                                <span class="comment">! 1. CREAR LAS VLANs SECUENCIALMENTE:</span>
+                                <span class="code-line"><span class="cli-prompt">Switch></span> enable</span>
+                                <span class="code-line"><span class="cli-prompt">Switch#</span> configure terminal</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config)#</span> vlan 10</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> name Administracion</span>
+                                <span class="comment">! Crear la VLAN de Gestión (Para el SSH)</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> vlan 99</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> name Nativa-Gestion</span>
+                                <span class="comment">! Crear la VLAN Nativa (Agujero negro sin IP)</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> vlan 999</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> name Nativa</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-vlan)#</span> exit</span>
+                                <br>
+                                <span class="comment">! 2. ASIGNAR PUERTO DE ACCESO (Hacia una PC EndPoint)</span>
                                 <span class="code-line"><span class="cli-prompt">Switch(config)#</span> interface fastEthernet 0/2</span>
                                 <span class="code-line"><span class="cli-prompt">Switch(config-if)#</span> switchport mode access</span>
-                                <span class="code-line"><span class="cli-prompt">Switch(config-if)#</span> switchport access vlan 30</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-if)#</span> switchport access vlan 10</span>
                                 <span class="code-line"><span class="cli-prompt">Switch(config-if)#</span> exit</span>
-                                
-                                <span class="comment">! CONFIGURAR ENLACES TRONCALES (Conexiones Switch L2 a Switch L3 Core)</span>
-                                <span class="comment">! Ejemplo: El puerto Gigabit 0/1 conecta al Switch 3650</span>
+                                <br>
+                                <span class="comment">! 3. CONFIGURAR ENLACES TRONCALES (Hacia el Switch L3 correspondiente)</span>
                                 <span class="code-line"><span class="cli-prompt">Switch(config)#</span> interface gigabitEthernet 0/1</span>
                                 <span class="code-line"><span class="cli-prompt">Switch(config-if)#</span> switchport mode trunk</span>
+                                <span class="comment">! Declaramos que la VLAN 999 atrapará el tráfico sin etiquetar del troncal:</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-if)#</span> switchport trunk native vlan 999</span>
                                 <span class="code-line"><span class="cli-prompt">Switch(config-if)#</span> switchport trunk allowed vlan all</span>
                                 <span class="code-line"><span class="cli-prompt">Switch(config-if)#</span> exit</span>
+                                <br>
+                                <span class="comment">! 4. CONFIGURAR GESTIÓN PARA SSH (VLAN 99)</span>
+                                <span class="comment">! Le damos una IP al switch en la red de gestión para poder administrarlo a distancia. (Usamos la IP .2 para este switch)</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config)#</span> interface vlan 99</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-if)#</span> ip address 10.192.11.194 255.255.255.224</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-if)#</span> no shutdown</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config-if)#</span> exit</span>
+                                <span class="comment">! CRÍTICO: Indicamos la IP de la SVI del Switch L3 de Distribución (.193) para que este Switch L2 sepa cómo responder a la PC Admin que está en otra red.</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config)#</span> ip default-gateway 10.192.11.193</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config)#</span> do wr</span>
                             </div>
                         </div>
                     </div>
@@ -659,98 +703,165 @@
         <section id="modulo-3" class="module-section">
             <div class="module-header">
                 <span class="module-number">03</span>
-                <h2 class="module-title">El Núcleo - Enrutamiento Inter-VLAN (Cisco 3650)</h2>
+                <h2 class="module-title">El Núcleo L3 - Modelo Jerárquico (3 Capas)</h2>
             </div>
             <div class="card">
+                
                 <div class="accordion-item">
                     <button class="accordion-header active">
-                        <div class="header-left"><i class="fa-solid fa-bolt"></i><span>Configuración Exhaustiva del Switch Multicapa L3</span></div>
+                        <div class="header-left"><i class="fa-solid fa-sitemap"></i><span>La Jerarquía: Core vs. Distribución</span></div>
                         <i class="fa-solid fa-chevron-down accordion-icon"></i>
                     </button>
                     <div class="accordion-content">
                         <div class="accordion-inner">
-                            <p class="theory-text">El proyecto utiliza el <strong>Switch L3 Cisco 3650</strong>. Este dispositivo de Capa 3 asume el rol de Gateway para todas las VLANs de las PCs, creando las "Interfaces Virtuales (SVI)".</p>
+                            <p class="theory-text">Nuestra sede matriz cumple estrictamente con el modelo de 3 capas jerárquicas de Cisco. Los switches Multicapa cooperan con funciones separadas y claras:</p>
                             
-                            <div class="alert-box">
-                                <i class="fa-solid fa-bolt"></i>
-                                <div class="alert-box-content">
-                                    <strong>¡COMANDO CRÍTICO Y OBLIGATORIO!</strong>
-                                    <p>Por defecto, un Switch Multicapa viene "dormido" de fábrica y solo actúa como un Switch común (Capa 2). Esto significa que aunque crees las VLANs y les pongas IPs, el equipo <strong>no sabe cruzar datos</strong> de una VLAN a otra.</p>
-                                    
-                                    <blockquote style="margin-top: 10px; background: rgba(0,0,0,0.2); padding: 15px; border-left: 3px solid var(--accent-cyan);">
-                                        💡 <strong>Analogía simple:</strong> Imagina que el switch es un edificio. Crear las VLANs es como construir los pisos, y las SVIs son las puertas de los departamentos. Si no pones el comando <code>ip routing</code>, es como dejar todas las puertas con llave: nadie puede salir de su piso ni visitar a sus vecinos (ningún ping pasará entre VLANs).
-                                    </blockquote>
-
-                                    <p style="margin-top: 10px;"><strong>¿Qué significa "Modo Global"?</strong><br>
-                                    Cisco organiza sus comandos por niveles. El modo global reconoce el prompt <code>CORE(config)#</code>. Los comandos que escribes aquí afectan a <strong>todo el equipo por completo</strong>. No tienes que poner <code>ip routing</code> antes de cada línea de código; basta con ponerlo <strong>una sola vez</strong> en este modo para "encender el motor de enrutamiento" de todo el switch antes de probar tus pings.</p>
-                                </div>
-                            </div>
-
-                            <div class="code-block">
-                                <span class="comment">! PASO 1: ENCIENDE EL MOTOR DEL SWITCH (Modo Global)</span>
-                                <span class="comment">! ip: Indica que el comando trabajará con el protocolo IPv4.</span>
-                                <span class="comment">! routing: Activa la tabla de enrutamiento interna en todo el hardware del switch L3.</span>
-                                <span class="code-line"><span class="cli-prompt">CORE(config)#</span> ip routing</span>
-                                <br>
-                                <span class="comment">! PASO 2: CREAR LOS CONTENEDORES (VLANs)</span>
-                                <span class="comment">! Para asegurar compatibilidad total en el Cisco 3650, creamos las VLANs de forma individual en el modo de configuración:</span>
-                                <span class="code-line"><span class="cli-prompt">CORE(config)#</span> vlan 10</span>
-                                <span class="code-line"><span class="cli-prompt">CORE(config-vlan)#</span> vlan 20</span>
-                                <span class="code-line"><span class="cli-prompt">CORE(config-vlan)#</span> vlan 30</span>
-                                <span class="code-line"><span class="cli-prompt">CORE(config-vlan)#</span> vlan 40</span>
-                                <span class="code-line"><span class="cli-prompt">CORE(config-vlan)#</span> vlan 50</span>
-                                <span class="code-line"><span class="cli-prompt">CORE(config-vlan)#</span> vlan 60</span>
-                                <span class="code-line"><span class="cli-prompt">CORE(config-vlan)#</span> vlan 70</span>
-                                <span class="code-line"><span class="cli-prompt">CORE(config-vlan)#</span> vlan 80</span>
-                                <span class="code-line"><span class="cli-prompt">CORE(config-vlan)#</span> vlan 90</span>
-                                <span class="code-line"><span class="cli-prompt">CORE(config-vlan)#</span> exit</span>
-                                <br>
-                                <span class="comment">! PASO 3: CONFIGURAR LAS PUERTAS DE ENLACE (SVIs)</span>
-                                <span class="comment">! interface vlan: Crea o selecciona la interfaz virtual (SVI) de la VLAN 10 (El prompt cambia al sub-modo específico config-if).</span>
-                                <span class="code-line"><span class="cli-prompt">CORE(config)#</span> interface vlan 10</span>
-                                <span class="comment">! description: Añade una etiqueta de texto para identificar la red (no afecta el rendimiento).</span>
-                                <span class="code-line"><span class="cli-prompt">CORE(config-if)#</span> description AdministracionVLAN10</span>
-                                <span class="comment">! ip address [IP] [Máscara]: Asigna la IP fija que usarán los hosts como Gateway. (Nota: Observa la máscara /25 ajustada).</span>
-                                <span class="code-line"><span class="cli-prompt">CORE(config-if)#</span> ip address 10.81.41.1 255.255.255.128</span>
-                                <span class="comment">! no shutdown: "no" cancela o revierte un comando; "shutdown" mantiene la interfaz apagada. Al combinarlos, se enciende la interfaz.</span>
-                                <span class="code-line"><span class="cli-prompt">CORE(config-if)#</span> no shutdown</span>
+                            <div class="theory-box">
+                                <h4>1. Capa de Distribución (D1_LIMA, D2_LIMA, D3_LIMA)</h4>
+                                <p>Aquí es donde configuramos las <strong>VLANs de usuario</strong> y viven las <strong>SVIs (Puertas de enlace de las PCs y APs)</strong>. Hacia abajo, se conectan a los switches de acceso mediante enlaces troncales L2. Hacia arriba, se conectan al CORE usando enlaces ruteados puros de Capa 3.</p>
                                 
-                                <br>
-                                <span class="comment">! Repetimos el mismo proceso para las demás VLANs entrando a sus respectivas interfaces virtuales:</span>
-                                <span class="code-line"><span class="cli-prompt">CORE(config)#</span> interface vlan 20</span>
-                                <span class="code-line"><span class="cli-prompt">CORE(config-if)#</span> description LogisticaVLAN20</span>
-                                <span class="comment">! ip address de ejemplo usando subred /26:</span>
-                                <span class="code-line"><span class="cli-prompt">CORE(config-if)#</span> ip address 10.81.42.129 255.255.255.192</span>
-                                <span class="code-line"><span class="cli-prompt">CORE(config-if)#</span> no shutdown</span>
-                                
-                                <br>
-                                <span class="comment">! Nota: Continúa aplicando esta misma lógica para las VLANs restantes usando tus IPs de VLSM ajustadas con el incremento del 25%.</span>
+                                <h4>2. Capa Core L3 (CORE_LIMA)</h4>
+                                <p>Es el agregador central de alta velocidad. <strong>NO lleva VLANs de usuario ni SVIs de departamentos.</strong> Su única función es unir las conexiones de D1, D2 y D3 con el Router WAN mediante subredes Punto a Punto (/30) y enrutar los paquetes usando RIPv2.</p>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <div class="accordion-item">
+                    <button class="accordion-header">
+                        <div class="header-left"><i class="fa-solid fa-layer-group"></i><span>Paso 1: Switches de Distribución (Los Gateways)</span></div>
+                        <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <div class="alert-box">
+                                <i class="fa-solid fa-bolt"></i>
+                                <div class="alert-box-content">
+                                    <strong>¿Qué hace el flag "no switchport"?</strong>
+                                    <p>Apaga las funciones de switch (Capa 2) en un puerto físico. Lo convierte en un puerto de Router al que le podemos poner una IP directa, permitiendo enlaces Punto a Punto rápidos hacia el Core sin que el protocolo Spanning Tree nos bloquee la red.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="alert-box info">
+                                <i class="fa-solid fa-circle-question"></i>
+                                <div class="alert-box-content">
+                                    <strong>El Secreto del Comando "network" en RIPv2</strong>
+                                    <p>El comando <code>network</code> NO te pide la IP exacta de tu VLAN (ej. 10.192.8.0), sino la <strong>Red Principal (Clase A, B o C)</strong> a la que pertenece.</p>
+                                    <p>• Como nuestro proyecto usa IPs que empiezan con <strong>10.x.x.x</strong> para las PCs, la red principal obligatoria a declarar es <code>10.0.0.0</code>.</p>
+                                    <p>• Para los cables directos entre los switches usaremos IPs <strong>172.16.x.x</strong>, por lo que su red principal es <code>172.16.0.0</code>.</p>
+                                </div>
+                            </div>
+
+                            <div class="code-block">
+                                <span class="comment">! CONFIGURACIÓN EN D1_LIMA (Asumiendo que maneja VLAN 10 Ventas, VLAN 20 Admin y VLAN 99 Gestión)</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config)#</span> ip routing</span>
+                                <br>
+                                <span class="comment">! 1. Crear las SVIs (Extraídas de nuestra tabla de Subnetting)</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config)#</span> vlan 10</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config-vlan)#</span> vlan 20</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config-vlan)#</span> vlan 99</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config-vlan)#</span> exit</span>
+                                <br>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config)#</span> interface vlan 10</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config-if)#</span> ip address 10.192.8.1 255.255.255.0 <span class="comment">(Gateway Ventas)</span></span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config-if)#</span> no shutdown</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config-if)#</span> exit</span>
+                                <br>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config)#</span> interface vlan 20</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config-if)#</span> ip address 10.192.9.1 255.255.255.128 <span class="comment">(Gateway Admin)</span></span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config-if)#</span> no shutdown</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config-if)#</span> exit</span>
+                                <br>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config)#</span> interface vlan 99</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config-if)#</span> ip address 10.192.11.193 255.255.255.224 <span class="comment">(Gateway de Gestión)</span></span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config-if)#</span> no shutdown</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config-if)#</span> exit</span>
+                                <br>
+                                <span class="comment">! 2. Enlace de subida (Uplink) hacia el CORE_LIMA - Puerto Ruteado L3</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config)#</span> interface gigabitEthernet 1/0/24</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config-if)#</span> no switchport</span>
+                                <span class="comment">! Usamos una IP para el cable que los une (Subred /30 de Tránsito)</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config-if)#</span> ip address 172.16.0.2 255.255.255.252</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config-if)#</span> no shutdown</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config-if)#</span> exit</span>
+                                <br>
+                                <span class="comment">! 3. Configurar RIPv2 para anunciar las redes locales hacia el Core</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config)#</span> router rip</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config-router)#</span> version 2</span>
+                                <span class="comment">! Obligatorio: Activa RIP en todas tus VLANs de usuarios (Las que empiezan con 10)</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config-router)#</span> network 10.0.0.0</span>
+                                <span class="comment">! Obligatorio: Activa RIP en el cable /30 que acabas de configurar (Empieza con 172.16)</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config-router)#</span> network 172.16.0.0</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config-router)#</span> no auto-summary</span>
+                                <br>
+                                <span class="comment">! Nota: Configura D2_LIMA y D3_LIMA siguiendo exactamente esta misma lógica para sus respectivas VLANs.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <button class="accordion-header">
+                        <div class="header-left"><i class="fa-solid fa-microchip"></i><span>Paso 2: Configurar el Switch Core L3 Central</span></div>
+                        <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <p class="theory-text">El <code>CORE_LIMA</code> interconecta los tres bloques de distribución ruteando los paquetes y enviándolos hacia el Router 2911 Perimetral de salida. No tiene SVIs, solo puertos ruteados IP.</p>
+                            
+                            <div class="code-block">
+                                <span class="comment">! CONFIGURACIÓN EN CORE_LIMA</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config)#</span> ip routing</span>
+                                <br>
+                                <span class="comment">! 1. Conexión hacia el Distribución 1 (Mismo segmento Punto a Punto)</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config)#</span> interface gigabitEthernet 1/0/1</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-if)#</span> no switchport</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-if)#</span> ip address 172.16.0.1 255.255.255.252</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-if)#</span> no shutdown</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-if)#</span> exit</span>
+                                <br>
+                                <span class="comment">! (Repetir bloque anterior para los puertos que van a D2 y D3 usando diferentes IPs /30 como 172.16.0.5 y 172.16.0.9)</span>
+                                <br>
+                                <span class="comment">! 2. Conexión hacia el Router 2911 Perimetral</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config)#</span> interface gigabitEthernet 1/0/24</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-if)#</span> no switchport</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-if)#</span> ip address 172.16.0.13 255.255.255.252</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-if)#</span> no shutdown</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-if)#</span> exit</span>
+                                <br>
+                                <span class="comment">! 3. Activar RIPv2 en el Core para unir los caminos</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config)#</span> router rip</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-router)#</span> version 2</span>
+                                <span class="comment">! El Core NO tiene VLANs de PCs conectadas, así que solo anuncia la red 172.16.0.0 que engloba a todos sus cables /30</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-router)#</span> network 172.16.0.0</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-router)#</span> no auto-summary</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </section>
 
         <section id="modulo-4" class="module-section">
             <div class="module-header">
                 <span class="module-number">04</span>
-                <h2 class="module-title">Enlaces WAN (Routers 2911) y Autenticación PPP CHAP</h2>
+                <h2 class="module-title">Enlaces WAN (Routers 2911) y Autenticación PPP</h2>
             </div>
             <div class="card">
                 <div class="accordion-item">
                     <button class="accordion-header active">
-                        <div class="header-left"><i class="fa-solid fa-book-open"></i><span>Teoría de Laboratorio: PAP vs CHAP</span></div>
+                        <div class="header-left"><i class="fa-solid fa-book-open"></i><span>Teoría de Autenticación: PAP vs CHAP</span></div>
                         <i class="fa-solid fa-chevron-down accordion-icon"></i>
                     </button>
                     <div class="accordion-content">
                         <div class="accordion-inner">
                             <div class="theory-box">
                                 <h4>Fundamento Teórico</h4>
-                                <p>En enlaces seriales WAN (entre tus routers Cisco 2911), el protocolo por defecto de Cisco es HDLC. Sin embargo, para mayor compatibilidad y seguridad cambiamos el encapsulamiento a <strong>PPP (Point-to-Point Protocol)</strong>.</p>
+                                <p>En enlaces seriales WAN, para aplicar seguridad cambiamos el encapsulamiento a <strong>PPP (Point-to-Point Protocol)</strong>.</p>
                                 
                                 <blockquote style="margin-top: 10px; background: rgba(0,0,0,0.2); padding: 15px; border-left: 3px solid var(--accent-orange);">
-                                    💡 <strong>Analogía simple:</strong> Piensa en la autenticación PAP como si enseñaras tu DNI en la puerta del edificio (cualquiera que mire puede ver tus datos, porque va en texto plano). En cambio, CHAP es como usar un token de banco en tu celular; envía un desafío matemático cifrado en 3 vías que cambia constantemente, haciendo casi imposible que un hacker intercepte tu clave. ¡Por eso la rúbrica exige CHAP!
+                                    💡 <strong>Analogía simple:</strong> Piensa en <strong>PAP</strong> como enseñar tu DNI en la puerta del edificio (cualquiera puede ver tus datos, va en texto plano). En cambio, <strong>CHAP</strong> es como usar un token de banco; envía un desafío matemático cifrado que cambia constantemente.
                                 </blockquote>
                             </div>
                         </div>
@@ -758,7 +869,7 @@
                 </div>
                 <div class="accordion-item">
                     <button class="accordion-header">
-                        <div class="header-left"><i class="fa-solid fa-shield-halved"></i><span>Comandos de Autenticación Cruzada</span></div>
+                        <div class="header-left"><i class="fa-solid fa-shield-halved"></i><span>Configuración Práctica Cruzada (La Regla de la Rúbrica)</span></div>
                         <i class="fa-solid fa-chevron-down accordion-icon"></i>
                     </button>
                     <div class="accordion-content">
@@ -766,26 +877,35 @@
                             <div class="alert-box info">
                                 <i class="fa-solid fa-circle-info"></i>
                                 <div class="alert-box-content">
-                                    <strong>Regla de Nombres de Usuario</strong>
-                                    <p>Si configuras el ROUTER A que conecta con el ROUTER B, el comando debe ser `username ROUTER_B secret miclave`. La clave (`secret`) debe ser EXACTAMENTE la misma en ambos routers 2911.</p>
+                                    <strong>Distribución Obligatoria (WAN 1 al 4)</strong>
+                                    <p>La rúbrica exige usar AMBOS protocolos. Configuraremos <strong>CHAP</strong> para conectar Lima con La Libertad y Huánuco (WAN 1 y 3). Usaremos <strong>PAP</strong> para conectar Lima con Ica y Puno (WAN 2 y 4).</p>
                                 </div>
                             </div>
                             <div class="code-block">
-                                <span class="comment">! CONFIGURACIÓN EN ROUTER 2911 LIMA (Conectando hacia Ica):</span>
+                                <span class="comment">! ==========================================</span>
+                                <span class="comment">! ENLACES CON PAP (Ej: Lima conectando hacia Ica - WAN 2)</span>
+                                <span class="comment">! ==========================================</span>
+                                <span class="comment">! username [host_vecino] secret [clave_compartida]</span>
                                 <span class="code-line"><span class="cli-prompt">Router_Lima(config)#</span> username Router_Ica secret ciscoclass</span>
                                 <span class="code-line"><span class="cli-prompt">Router_Lima(config)#</span> interface s0/0/0</span>
-                                <span class="code-line"><span class="cli-prompt">Router_Lima(config-if)#</span> ip address 10.81.36.1 255.255.255.252</span>
+                                <span class="comment">! Usa una subred WAN reservada como 10.192.255.1 /30 (A modo de ejemplo)</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config-if)#</span> ip address 10.192.255.1 255.255.255.252</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config-if)#</span> encapsulation ppp</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config-if)#</span> ppp authentication pap</span>
+                                <span class="comment">! PAP requiere enviar explícitamente las credenciales propias:</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config-if)#</span> ppp pap sent-username Router_Lima password ciscoclass</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config-if)#</span> no shutdown</span>
+                                
+                                <br>
+                                <span class="comment">! ==========================================</span>
+                                <span class="comment">! ENLACES CON CHAP (Ej: Lima conectando hacia La Libertad - WAN 1)</span>
+                                <span class="comment">! ==========================================</span>
+                                <span class="comment">! CHAP es automático, confía en la BD local de usuarios.</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config)#</span> username Router_LaLibertad secret ciscoclass</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config)#</span> interface s0/0/1</span>
                                 <span class="code-line"><span class="cli-prompt">Router_Lima(config-if)#</span> encapsulation ppp</span>
                                 <span class="code-line"><span class="cli-prompt">Router_Lima(config-if)#</span> ppp authentication chap</span>
                                 <span class="code-line"><span class="cli-prompt">Router_Lima(config-if)#</span> no shutdown</span>
-                                <br>
-                                <span class="comment">! CONFIGURACIÓN EN ROUTER 2911 ICA (Conectando hacia Lima):</span>
-                                <span class="code-line"><span class="cli-prompt">Router_Ica(config)#</span> username Router_Lima secret ciscoclass</span>
-                                <span class="code-line"><span class="cli-prompt">Router_Ica(config)#</span> interface s0/0/0</span>
-                                <span class="code-line"><span class="cli-prompt">Router_Ica(config-if)#</span> ip address 10.81.36.2 255.255.255.252</span>
-                                <span class="code-line"><span class="cli-prompt">Router_Ica(config-if)#</span> encapsulation ppp</span>
-                                <span class="code-line"><span class="cli-prompt">Router_Ica(config-if)#</span> ppp authentication chap</span>
-                                <span class="code-line"><span class="cli-prompt">Router_Ica(config-if)#</span> no shutdown</span>
                             </div>
                         </div>
                     </div>
@@ -796,43 +916,62 @@
         <section id="modulo-5" class="module-section">
             <div class="module-header">
                 <span class="module-number">05</span>
-                <h2 class="module-title">Enrutamiento RIPv2 y Rutas Estáticas</h2>
+                <h2 class="module-title">Enrutamiento RIPv2, Failover e Inyección de Ruta</h2>
             </div>
             <div class="card">
+                
                 <div class="accordion-item">
                     <button class="accordion-header active">
-                        <div class="header-left"><i class="fa-solid fa-network-wired"></i><span>RIPv2 y Rutas Flotantes (Failover)</span></div>
+                        <div class="header-left"><i class="fa-solid fa-list-check"></i><span>Desglose de Comandos Clave (La Ruta de Último Recurso)</span></div>
                         <i class="fa-solid fa-chevron-down accordion-icon"></i>
                     </button>
                     <div class="accordion-content">
                         <div class="accordion-inner">
-                            <div class="theory-box">
-                                <h4>Fundamento Teórico</h4>
-                                <p><strong>RIPv2</strong> es un protocolo de vector distancia que compartirá automáticamente las rutas entre nuestras sedes.</p>
-                                
-                                <blockquote style="margin-top: 10px; background: rgba(0,0,0,0.2); padding: 15px; border-left: 3px solid var(--accent-cyan);">
-                                    💡 <strong>Analogía simple:</strong> Si las VLANs son las oficinas de un edificio y el Switch 3650 es el gerente interno, RIPv2 configurado en los Routers 2911 es el "GPS Corporativo" entre edificios. Le dice a cada sucursal de la empresa cuál es el camino con menos "saltos" para enviar un paquete desde Lima hasta Arequipa sin perderse.
-                                </blockquote>
-                                
-                                <p style="margin-top: 10px;">Por otro lado, las <strong>Rutas Estáticas Flotantes</strong> nos permiten tener un enlace ISP de respaldo hacia Internet. Ese respaldo solo se activará si el enlace principal "se cae" (lo cual logramos configurando una distancia administrativa mayor a 1).</p>
-                            </div>
-                            
+                            <table class="data-table">
+                                <tr>
+                                    <th>Comando y Flags</th>
+                                    <th>¿Qué hace exactamente?</th>
+                                </tr>
+                                <tr>
+                                    <td><strong><span class="highlight-cyan">ip route 0.0.0.0 0.0.0.0</span></strong> [ip-isp] <strong><span class="highlight-orange">[distancia]</span></strong></td>
+                                    <td><strong>Ruta Estática Predeterminada.</strong> Le dice al Router Perimetral: "Si no conoces el destino del paquete, tíralo hacia Internet". El parámetro opcional <code>[distancia]</code> crea una <strong>ruta flotante</strong> de respaldo que solo se activará si la principal falla.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong><span class="highlight-cyan">default-information originate</span></strong></td>
+                                    <td><strong>COMANDO CRÍTICO.</strong> Como las sucursales no tienen ruta hacia Internet, este comando dentro de <code>router rip</code> obliga al Router Perimetral a inyectar su ruta estática predeterminada dentro de las actualizaciones RIPv2, para que todos los demás routers de la topología aprendan cómo salir a Internet.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong><span class="highlight-cyan">no auto-summary</span></strong></td>
+                                    <td>Desactiva la sumarización automática que agrupa redes a su clase mayor. Si no lo pones, RIPv2 destruirá tu diseño VLSM mezclando las subredes.</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <button class="accordion-header">
+                        <div class="header-left"><i class="fa-solid fa-network-wired"></i><span>Configuración en el Router Perimetral (Lima)</span></div>
+                        <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
                             <div class="code-block">
-                                <span class="comment">! 1. CONFIGURAR RIPv2 EN TODOS LOS ROUTERS 2911 Y SWITCHES 3650:</span>
-                                <span class="code-line"><span class="cli-prompt">Router(config)#</span> router rip</span>
-                                <span class="code-line"><span class="cli-prompt">Router(config-router)#</span> version 2</span>
-                                <span class="comment">! Debes declarar las redes directamente conectadas. Por ejemplo, si el router tiene la 10.81.36.0:</span>
-                                <span class="code-line"><span class="cli-prompt">Router(config-router)#</span> network 10.81.36.0</span>
-                                <span class="code-line"><span class="cli-prompt">Router(config-router)#</span> network 10.81.0.0</span>
-                                <span class="comment">! CRÍTICO: Prevenir que RIP destruya el VLSM sumarizando las redes</span>
-                                <span class="code-line"><span class="cli-prompt">Router(config-router)#</span> no auto-summary</span>
-                                <span class="code-line"><span class="cli-prompt">Router(config-router)#</span> exit</span>
+                                <span class="comment">! 1. RUTAS ESTÁTICAS HACIA EL INTERNET (Solo en el Router Perimetral 2911):</span>
+                                <span class="comment">! Ruta Predeterminada Principal por el ISP 1 (Distancia predeterminada = 1)</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config)#</span> ip route 0.0.0.0 0.0.0.0 209.165.200.226</span>
+                                <span class="comment">! Ruta Flotante de Respaldo por el ISP 2 (Agregamos la Distancia Administrativa 5)</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config)#</span> ip route 0.0.0.0 0.0.0.0 209.165.201.2 5</span>
                                 <br>
-                                <span class="comment">! 2. RUTAS ESTÁTICAS AL INTERNET (Solo en el Router 2911 Frontera / Borde):</span>
-                                <span class="comment">! Ruta Predeterminada Principal por el ISP 1</span>
-                                <span class="code-line"><span class="cli-prompt">Router(config)#</span> ip route 0.0.0.0 0.0.0.0 209.165.200.226</span>
-                                <span class="comment">! Ruta Flotante de Respaldo por el ISP 2 (Distancia Administrativa 5)</span>
-                                <span class="code-line"><span class="cli-prompt">Router(config)#</span> ip route 0.0.0.0 0.0.0.0 209.165.201.2 5</span>
+                                <span class="comment">! 2. ENRUTAMIENTO DINÁMICO E INYECCIÓN</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config)#</span> router rip</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config-router)#</span> version 2</span>
+                                <span class="comment">! Declaramos las redes de clase conectadas a este router (WANs hacia sucursales y la interfaz ruteada hacia el CORE)</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config-router)#</span> network 10.0.0.0</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config-router)#</span> network 172.16.0.0</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config-router)#</span> no auto-summary</span>
+                                <span class="comment">! Inyectamos la ruta de internet al resto de la topología:</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config-router)#</span> default-information originate</span>
                             </div>
                         </div>
                     </div>
@@ -846,58 +985,87 @@
                 <h2 class="module-title">Servicios de Red (La Magia de Capa 7)</h2>
             </div>
             <div class="card">
+                
                 <div class="accordion-item">
                     <button class="accordion-header active">
-                        <div class="header-left"><i class="fa-solid fa-book-open"></i><span>Teoría de Laboratorios 11b y 11c</span></div>
+                        <div class="header-left"><i class="fa-solid fa-server"></i><span>Cheatsheet de Puertos TCP/UDP (Labs 11)</span></div>
                         <i class="fa-solid fa-chevron-down accordion-icon"></i>
                     </button>
                     <div class="accordion-content">
                         <div class="accordion-inner">
-                            <div class="theory-box">
-                                <h4>DNS (Domain Name System)</h4>
-                                <p>Las computadoras se comunican usando IPs numéricas, pero los humanos usamos nombres (ej. `www.google.com`). El servidor DNS actúa como una gigantesca guía telefónica que traduce estos nombres a IPs.</p>
-                                
-                                <h4>WEB (HTTP/HTTPS)</h4>
-                                <p>El Servidor WEB procesa aplicaciones del lado del servidor. Generalmente usa el protocolo HTTP (puerto TCP 80) o HTTPS (puerto TCP 443) para enviar el código de la página al navegador del cliente.</p>
-
-                                <h4>CORREO (SMTP, POP3, IMAP)</h4>
-                                <p>Trabaja como una oficina postal. El protocolo <strong>SMTP</strong> (Puerto TCP 25) se encarga de transportar o enviar el mensaje (MTA). El protocolo <strong>POP3</strong> (Puerto TCP 110) se encarga de descargar y recuperar el correo desde el servidor hacia la PC cliente. IMAP es similar pero mantiene la copia sincronizada en el servidor.</p>
-                                
-                                <h4>FTP y TCP</h4>
-                                <p>FTP permite la transferencia de archivos. Utiliza el protocolo <strong>TCP</strong>, el cual orienta la conexión y garantiza la fiabilidad del envío de los paquetes (a diferencia de UDP que es más rápido pero no garantiza la entrega).</p>
-                            </div>
+                            <p class="theory-text">Para configurar correctamente las políticas de seguridad (ACLs), necesitas saber bajo qué protocolo de transporte y puerto se comunica cada servicio:</p>
+                            <table class="data-table">
+                                <tr>
+                                    <th>Servicio (App)</th>
+                                    <th>Capa de Transporte y Puerto</th>
+                                    <th>Descripción de uso</th>
+                                </tr>
+                                <tr>
+                                    <td><strong>HTTP / HTTPS (WEB)</strong></td>
+                                    <td><span class="highlight-cyan">TCP 80 / 443</span></td>
+                                    <td>Conexiones orientadas a garantizar la entrega de páginas web al navegador.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>FTP (Archivos)</strong></td>
+                                    <td><span class="highlight-cyan">TCP 20 y 21</span></td>
+                                    <td>Garantiza la fiabilidad del envío de paquetes. Usa el puerto 21 para control y 20 para datos.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>SMTP (Correo Saliente)</strong></td>
+                                    <td><span class="highlight-cyan">TCP 25</span></td>
+                                    <td>Se encarga del envío del mensaje (MTA) desde el cliente al servidor.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>POP3 (Correo Entrante)</strong></td>
+                                    <td><span class="highlight-cyan">TCP 110</span></td>
+                                    <td>Se encarga de descargar y recuperar el correo desde el servidor hacia la PC cliente.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>DNS (Nombres)</strong></td>
+                                    <td><span class="highlight-orange">UDP 53</span></td>
+                                    <td>Traduce dominios a IPs. Usa UDP porque requiere una respuesta rápida.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>DHCP (IP Dinámica)</strong></td>
+                                    <td><span class="highlight-orange">UDP 67 y 68</span></td>
+                                    <td>Asignación rápida de red para clientes (puerto 68) y respuestas del servidor (puerto 67).</td>
+                                </tr>
+                            </table>
                         </div>
                     </div>
                 </div>
+
                 <div class="accordion-item">
                     <button class="accordion-header">
-                        <div class="header-left"><i class="fa-solid fa-server"></i><span>Configuración GUI en Packet Tracer</span></div>
+                        <div class="header-left"><i class="fa-solid fa-gears"></i><span>Configuración GUI en Packet Tracer</span></div>
                         <i class="fa-solid fa-chevron-down accordion-icon"></i>
                     </button>
                     <div class="accordion-content">
                         <div class="accordion-inner">
-                            <p class="theory-text">En Packet Tracer, entra a los Servidores ubicados en la Sede Lima y ve a la pestaña <strong>"Services"</strong>. Así es como configuras cada uno, tal cual lo enseñan en los laboratorios:</p>
+                            <div class="alert-box info">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                                <div class="alert-box-content">
+                                    <strong>¡El Gateway del DHCP es Crítico!</strong>
+                                    <p>Cuando configures los Pool de DHCP para tus VLANs desde el Servidor GUI, en el campo "Default Gateway" debes colocar OBLIGATORIAMENTE <strong>la IP de la SVI del Switch de Distribución L3</strong> encargado de esa subred, de lo contrario las PCs finales no podrán salir de su red.</p>
+                                </div>
+                            </div>
                             <table class="data-table">
                                 <tr><th>Servicio</th><th>Paso a Paso en Packet Tracer GUI</th></tr>
                                 <tr>
-                                    <td><strong>DHCP</strong></td>
-                                    <td>Asegúrate de configurar el "Default Gateway" (IP de la SVI del Core 3650) y el "DNS Server" (IP del servidor DNS central de Lima). Crea un <strong>Pool Name</strong> para cada VLAN (Ej: `Pool-Ventas30`), define la IP de inicio y guarda los cambios con "Add" / "Save". ¡Enciende el servicio (ON)!</td>
-                                </tr>
-                                <tr>
                                     <td><strong>DNS</strong></td>
-                                    <td>Asegúrate de que esté en ON. En <strong>Name</strong> escribe el dominio (ej. `www.lima.com` o `ftp.huanuco.com`), en <strong>Type</strong> elige `A Record`, y en <strong>Address</strong> pon la IP exacta del servidor respectivo. Presiona "Add".</td>
+                                    <td>Enciende. En <strong>Name</strong> escribe el dominio (ej. `miempresa.com`), en <strong>Type</strong> elige `A Record`, y en <strong>Address</strong> pon la IP exacta del servidor respectivo.</td>
                                 </tr>
                                 <tr>
                                     <td><strong>HTTP</strong></td>
-                                    <td>Enciende HTTP y HTTPS. Edita el archivo `index.html` haciendo clic en "Edit" y cambia el código HTML (Ej: `<center>Bienvenido a la Sede Lima</center>`). Guarda para verificar desde las PCs.</td>
+                                    <td>Enciende HTTP y HTTPS. Edita el archivo `index.html` haciendo clic en "Edit".</td>
                                 </tr>
                                 <tr>
                                     <td><strong>FTP</strong></td>
-                                    <td>Actívalo (ON). Crea el nombre de usuario (ej. `adminLima`), contraseña y marca todas las casillas de permisos: <strong>Read, Write, Delete, Rename, List</strong>. Clic en "Add".</td>
+                                    <td>Actívalo (ON). Crea el usuario (ej. `adminLima`), contraseña y marca los permisos: <strong>Read, Write, Delete, Rename, List</strong>. Clic en "Add".</td>
                                 </tr>
                                 <tr>
                                     <td><strong>EMAIL</strong></td>
-                                    <td>Enciende SMTP y POP3. En <strong>Domain Name</strong> escribe `peru.com` y dale a "Set". Luego, crea los usuarios (ej. <code>usuarioLima1</code> con pass <code>1234</code>) y dale a "+" para añadirlos. Las PCs podrán abrir la app "Email", poner estos datos y enviarse correos.</td>
+                                    <td>Enciende SMTP y POP3. En <strong>Domain Name</strong> escribe `mail.miempresa.com` y dale a "Set". Crea los usuarios para que las PCs puedan enviarse correos usando la App nativa.</td>
                                 </tr>
                             </table>
                         </div>
@@ -909,24 +1077,76 @@
         <section id="modulo-7" class="module-section">
             <div class="module-header">
                 <span class="module-number">07</span>
-                <h2 class="module-title">Seguridad (Las 5 Políticas ACL y SSH)</h2>
+                <h2 class="module-title">Seguridad, ACLs Extendidas y SSH</h2>
             </div>
             <div class="card">
                 
                 <div class="accordion-item">
                     <button class="accordion-header active">
-                        <div class="header-left"><i class="fa-solid fa-magnifying-glass"></i><span>Desglose de Flags de Ciberseguridad</span></div>
+                        <div class="header-left"><i class="fa-solid fa-lock"></i><span>Configuración Exhaustiva de SSH (Router, L3 y L2)</span></div>
                         <i class="fa-solid fa-chevron-down accordion-icon"></i>
                     </button>
                     <div class="accordion-content">
                         <div class="accordion-inner">
                             <div class="theory-box">
-                                <h4>No copies a ciegas: Entiende los parámetros</h4>
-                                <p>En ciberseguridad, un parámetro o "flag" mal colocado puede dejar expuesta la red entera. Por lo tanto, este es el significado exacto de los que usaremos en el código:</p>
-                                <p>• <strong>any y host:</strong> <code>any</code> engloba a "cualquier origen o destino". Por otro lado, <code>host</code> restringe la regla a una IP única y exacta (ideal para servidores).</p>
-                                <p>• <strong>eq (Equal):</strong> Le indica a la ACL que intercepte un paquete cuyo protocolo coincida "exactamente" con el número de puerto especificado (ej. eq 80 para la web).</p>
-                                <p>• <strong>modulus:</strong> Al generar la llave criptográfica (<code>crypto key generate rsa</code>), define el tamaño matemático de tu cifrado SSH.</p>
-                                <p>• <strong>transport input ssh:</strong> Mata de raíz las conexiones vulnerables. Rechaza protocolos de texto plano como Telnet y obliga a los administradores a usar túneles cifrados.</p>
+                                <h4>La receta para habilitar el Acceso Remoto Seguro (SSH)</h4>
+                                <p>Para que el protocolo SSH funcione, el equipo requiere 4 cosas obligatorias antes de generar las llaves criptográficas: <strong>1)</strong> Un Hostname distinto al de fábrica. <strong>2)</strong> Un nombre de dominio. <strong>3)</strong> Un usuario local con contraseña secreta. <strong>4)</strong> Configurar las líneas virtuales (VTY) para que acepten el protocolo.</p>
+                            </div>
+
+                            <div class="code-block">
+                                <span class="comment">! ==========================================</span>
+                                <span class="comment">! EJEMPLO A: CONFIGURAR SSH EN EL ROUTER 2911</span>
+                                <span class="comment">! ==========================================</span>
+                                <span class="code-line"><span class="cli-prompt">Router(config)#</span> hostname Router_Lima</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config)#</span> ip domain-name miempresa.com</span>
+                                <span class="comment">! Generar llave. Te preguntará el tamaño: Escribe 1024 o 2048</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config)#</span> crypto key generate rsa</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config)#</span> username adminLima privilege 15 secret ciscoclass</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config)#</span> ip ssh version 2</span>
+                                <span class="comment">! Entramos a las líneas virtuales (del 0 al 4 son 5 sesiones simultáneas)</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config)#</span> line vty 0 4</span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config-line)#</span> transport input ssh <span class="comment">(Mata las conexiones Telnet)</span></span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config-line)#</span> login local <span class="comment">(Obliga a usar el usuario que creamos)</span></span>
+                                <span class="code-line"><span class="cli-prompt">Router_Lima(config-line)#</span> exit</span>
+                                
+                                <br>
+                                <span class="comment">! ==========================================</span>
+                                <span class="comment">! EJEMPLO B: CONFIGURAR SSH EN UN SWITCH MULTICAPA L3 (Core o Distribución)</span>
+                                <span class="comment">! ==========================================</span>
+                                <span class="comment">! Los switches Multicapa necesitan tener su SVI de Gestión activa para ser alcanzables.</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config)#</span> hostname D1_LIMA</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config)#</span> interface vlan 99</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config-if)#</span> ip address 10.192.11.193 255.255.255.224</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config-if)#</span> no shutdown</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config-if)#</span> exit</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config)#</span> ip domain-name miempresa.com</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config)#</span> crypto key generate rsa</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config)#</span> username adminLima privilege 15 secret ciscoclass</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config)#</span> ip ssh version 2</span>
+                                <span class="comment">! Los switches soportan más conexiones simultáneas (0 a 15)</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config)#</span> line vty 0 15</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config-line)#</span> transport input ssh</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config-line)#</span> login local</span>
+                                <span class="code-line"><span class="cli-prompt">D1_LIMA(config-line)#</span> exit</span>
+                                
+                                <br>
+                                <span class="comment">! ==========================================</span>
+                                <span class="comment">! EJEMPLO C: CONFIGURAR SSH EN UN SWITCH L2 DE ACCESO</span>
+                                <span class="comment">! ==========================================</span>
+                                <span class="code-line"><span class="cli-prompt">Switch(config)#</span> hostname SW_ACCESO1</span>
+                                <span class="code-line"><span class="cli-prompt">SW_ACCESO1(config)#</span> interface vlan 99</span>
+                                <span class="code-line"><span class="cli-prompt">SW_ACCESO1(config-if)#</span> ip address 10.192.11.194 255.255.255.224</span>
+                                <span class="code-line"><span class="cli-prompt">SW_ACCESO1(config-if)#</span> no shutdown</span>
+                                <span class="code-line"><span class="cli-prompt">SW_ACCESO1(config-if)#</span> exit</span>
+                                <span class="comment">! CRÍTICO EN L2: Sin el Default-Gateway, la PC Admin que está en la VLAN 20 no podrá hacerle SSH a la VLAN 99 del Switch.</span>
+                                <span class="code-line"><span class="cli-prompt">SW_ACCESO1(config)#</span> ip default-gateway 10.192.11.193</span>
+                                <span class="code-line"><span class="cli-prompt">SW_ACCESO1(config)#</span> ip domain-name miempresa.com</span>
+                                <span class="code-line"><span class="cli-prompt">SW_ACCESO1(config)#</span> crypto key generate rsa</span>
+                                <span class="code-line"><span class="cli-prompt">SW_ACCESO1(config)#</span> username adminLima privilege 15 secret ciscoclass</span>
+                                <span class="code-line"><span class="cli-prompt">SW_ACCESO1(config)#</span> line vty 0 15</span>
+                                <span class="code-line"><span class="cli-prompt">SW_ACCESO1(config-line)#</span> transport input ssh</span>
+                                <span class="code-line"><span class="cli-prompt">SW_ACCESO1(config-line)#</span> login local</span>
+                                <span class="code-line"><span class="cli-prompt">SW_ACCESO1(config-line)#</span> exit</span>
                             </div>
                         </div>
                     </div>
@@ -934,62 +1154,55 @@
 
                 <div class="accordion-item">
                     <button class="accordion-header">
-                        <div class="header-left"><i class="fa-solid fa-terminal"></i><span>Comandos Exhaustivos: Las 5 Políticas</span></div>
+                        <div class="header-left"><i class="fa-solid fa-magnifying-glass"></i><span>El Eslabón Perdido: "IP Access-Group"</span></div>
                         <i class="fa-solid fa-chevron-down accordion-icon"></i>
                     </button>
                     <div class="accordion-content">
                         <div class="accordion-inner">
-                            <p class="theory-text">Aplica esta <strong>ACL Extendida</strong> en el CORE L3 (Cisco 3650) para cumplir la rúbrica al 100%. (Reemplaza las IPs con las de tus servidores).</p>
-                            
-                            <div class="alert-box">
-                                <i class="fa-solid fa-triangle-exclamation"></i>
-                                <div class="alert-box-content">
-                                    <strong>Bloqueo Implícito (Deny Any Any)</strong>
-                                    <p>Toda ACL tiene un bloqueo automático al final. Si omites el comando <span class="highlight-orange">permit ip any any</span> como última regla de tu lista, bloquearás absolutamente todo el tráfico normal (pings, etc).</p>
-                                </div>
+                            <div class="theory-box">
+                                <h4>Las Listas de Acceso (ACL) necesitan aplicarse</h4>
+                                <p>Muchos proyectos fallan la evaluación porque configuran una ACL perfectamente bien, pero se olvidan de enlazarla a una interfaz. Una ACL es solo una lista de reglas abstractas hasta que usas el comando <code>ip access-group [nombre-de-la-acl] [in / out]</code> dentro de una interfaz de red.</p>
+                                <p>• El flag <strong>in (Entrada):</strong> Filtra el tráfico justo en el momento en el que el paquete "intenta entrar" al equipo por ese puerto.</p>
+                                <p>• El flag <strong>out (Salida):</strong> Deja que el equipo procese y enrute el paquete, pero lo evalúa y frena justo en el momento en que "intenta salir" por ese puerto hacia su destino.</p>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <button class="accordion-header">
+                        <div class="header-left"><i class="fa-solid fa-terminal"></i><span>Comandos Exhaustivos: Políticas (Lab 13)</span></div>
+                        <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <p class="theory-text">Crearemos la <strong>ACL Extendida</strong> en el CORE L3. Al final, usaremos el flag <code>in</code> sobre el puerto físico que conecta con el exterior para filtrar peticiones entrantes no autorizadas.</p>
 
                             <div class="code-block">
-                                <span class="comment">! Entramos a configurar la ACL Extendida</span>
+                                <span class="comment">! 1. CREACIÓN DE LA LISTA EXTENDIDA</span>
                                 <span class="code-line"><span class="cli-prompt">CORE_LIMA(config)#</span> ip access-list extended POLITICAS_LIMA</span>
                                 
-                                <span class="comment">! POLÍTICA 1 - FTP: Permitir TCP (21) solo hacia el Servidor FTP específico (usando host)</span>
-                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-ext-nacl)#</span> permit tcp any host 10.81.43.38 eq 21</span>
+                                <span class="comment">! POLÍTICA 1 y 2 - Permitir FTP (21) y WEB (80) hacia los servidores locales (usando IPs de la Sede)</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-ext-nacl)#</span> permit tcp any host 10.192.11.10 eq 21 <span class="comment">(Ejemplo IP Servidor FTP)</span></span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-ext-nacl)#</span> permit tcp any host 10.192.11.11 eq 80 <span class="comment">(Ejemplo IP Servidor Web)</span></span>
                                 
-                                <span class="comment">! POLÍTICA 2 - WEB: Permitir tráfico web HTTP (80) y HTTPS (443)</span>
-                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-ext-nacl)#</span> permit tcp any any eq 80</span>
-                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-ext-nacl)#</span> permit tcp any any eq 443</span>
-                                
-                                <span class="comment">! POLÍTICA 3 - DHCP: Permitir servicio de IPs dinámicas en los puertos UDP 67 y 68</span>
+                                <span class="comment">! POLÍTICA 3 - DHCP (Puertos UDP 67 y 68)</span>
                                 <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-ext-nacl)#</span> permit udp any any eq 67</span>
                                 <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-ext-nacl)#</span> permit udp any any eq 68</span>
                                 
-                                <span class="comment">! POLÍTICA 4 - CORREO: Permitir tráfico SMTP (25) y POP3 (110) hacia el Server Mail</span>
-                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-ext-nacl)#</span> permit tcp any host 10.81.43.37 eq 25</span>
-                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-ext-nacl)#</span> permit tcp any host 10.81.43.37 eq 110</span>
+                                <span class="comment">! POLÍTICA 4 - CORREO (Tráfico SMTP 25 y POP3 110)</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-ext-nacl)#</span> permit tcp any host 10.192.11.12 eq 25 <span class="comment">(Ejemplo IP Mail Server)</span></span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-ext-nacl)#</span> permit tcp any host 10.192.11.12 eq 110</span>
                                 
-                                <span class="comment">! CRÍTICO: Evitar que el Deny Implícito bloquee todo lo demás en la red</span>
+                                <span class="comment">! Evitar que el Deny Implícito bloquee todo lo demás (Pings)</span>
                                 <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-ext-nacl)#</span> permit ip any any</span>
                                 <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-ext-nacl)#</span> exit</span>
-                                
-                                <span class="comment">! ==========================================</span>
-                                <span class="comment">! POLÍTICA 5 - SSH GESTIÓN SEGURA: Crear la clave RSA y el usuario</span>
-                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config)#</span> ip domain-name lima.com</span>
-                                <span class="comment">! Aquí definimos el "modulus" o tamaño del candado matemático (Digita 1024)</span>
-                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config)#</span> crypto key generate rsa</span>
-                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config)#</span> username adminLima privilege 15 secret adminLima</span>
-                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config)#</span> ip ssh version 2</span>
-                                
-                                <span class="comment">! Crear ACL Estándar para asegurar que solo la PC ADMIN acceda</span>
-                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config)#</span> ip access-list standard ACL_GESTION</span>
-                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-std-nacl)#</span> permit host 10.81.42.193 <span class="comment">(IP de tu PC Admin)</span></span>
-                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-std-nacl)#</span> exit</span>
-                                
-                                <span class="comment">! Aplicar la restricción a las líneas virtuales, forzando túnel SSH</span>
-                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config)#</span> line vty 0 4</span>
-                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-line)#</span> transport input ssh</span>
-                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-line)#</span> login local</span>
-                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-line)#</span> access-class ACL_GESTION in</span>
+                                <br>
+                                <span class="comment">! 2. APLICACIÓN DE LA POLÍTICA (El paso crítico)</span>
+                                <span class="comment">! Entramos al puerto físico ruteado que conecta directamente con el Router WAN 2911</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config)#</span> interface gigabitEthernet 1/0/24</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-if)#</span> ip access-group POLITICAS_LIMA in</span>
+                                <span class="code-line"><span class="cli-prompt">CORE_LIMA(config-if)#</span> exit</span>
                             </div>
                         </div>
                     </div>
@@ -1010,7 +1223,7 @@
                     </button>
                     <div class="accordion-content">
                         <div class="accordion-inner">
-                            <p class="theory-text">Para los Access Points (modelo <strong>Cisco PT-AC</strong> en Packet Tracer), entra a la pestaña "Config" -> Port 1. Asigna el SSID respectivo (ej. <code>WiFi-ClientesVLAN60</code>) y elige autenticación <strong>WPA2-PSK</strong> con una frase de paso sencilla como <code>0123456789</code>. Los Smartphones o Laptops EndPoints deben configurarse con el mismo SSID y contraseña en su interfaz Wireless0 para conectarse exitosamente.</p>
+                            <p class="theory-text">Para los Access Points (modelo <strong>Cisco PT-AC</strong>), entra a la pestaña "Config" -> Port 1. Asigna el SSID respectivo (ej. <code>WiFi-Clientes</code>) y elige autenticación <strong>WPA2-PSK</strong> con una frase de paso sencilla como <code>0123456789</code>. Los Smartphones deben configurarse con el mismo SSID y contraseña en su interfaz Wireless0.</p>
                         </div>
                     </div>
                 </div>
@@ -1021,12 +1234,12 @@
                     </button>
                     <div class="accordion-content">
                         <div class="accordion-inner">
-                            <p class="theory-text">Para la sustentación final (Hito 2), debes argumentar por qué se eligió Cloud en lugar de servidores On-Premise para los respaldos corporativos:</p>
+                            <p class="theory-text">Para la sustentación final (Hito 2), debes argumentar por qué se eligió Cloud en lugar de servidores On-Premise:</p>
                             <div class="alert-box info">
                                 <i class="fa-solid fa-lightbulb"></i>
                                 <div class="alert-box-content">
                                     <strong>Respuesta Ideal para la Sustentación:</strong>
-                                    <p>"Evaluamos proveedores y seleccionamos AWS S3 + AWS Backup porque nos permite cumplir con el modelo 3-2-1 de seguridad. Nos permite cambiar los altísimos costos de infraestructura física (CAPEX) por un modelo de pago por uso (OPEX). AWS nos ofrece escalabilidad inmediata, una durabilidad garantizada de 11 nueves (99.999999999%), y cifrado AES-256 nativo, características críticas que protegerán a MIEMPRESA contra desastres como ransomware o fallos de hardware."</p>
+                                    <p>"Evaluamos proveedores y seleccionamos AWS S3 + AWS Backup porque nos permite cambiar los altísimos costos de infraestructura física (CAPEX) por un modelo de pago por uso (OPEX). AWS nos ofrece escalabilidad inmediata, una durabilidad garantizada de 11 nueves (99.999999999%), y cifrado AES-256 nativo, protegiendo a MIEMPRESA contra desastres como ransomware o fallos de hardware."</p>
                                 </div>
                             </div>
                         </div>
@@ -1035,7 +1248,6 @@
             </div>
         </section>
 
-        
     </main>
 
     <script>
